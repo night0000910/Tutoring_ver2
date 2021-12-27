@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+<input type="hidden" value="{{user.id}}" id="user-id">
+<input type="hidden" value="{{year}}" id="year">
+<input type="hidden" value="{{month}}" id="month">
+<input type="hidden" value="{{day}}" id="day">
+<input type="hidden" value="{{hour}}" id="hour">
+
+<div class="container">
+    <div class="card-panel hoverable">
+        <img class="responsive-img" src="/media/Tutoring.jpg">
+        <h3>{{month}}月{{day}}日 {{hour}}時からの授業を予約しますか？</h3>
+        <button class="btn waves-effect waves-light btn-large" type="submit" name="action" >はい
+            <i class="material-icons right">add</i>
+        </button>
+        <button class="btn-large disabled" type="submit" name="action">いいえ
+        </button>
+    </div>
+</div>
+{% endblock content %}

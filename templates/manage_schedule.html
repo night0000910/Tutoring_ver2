@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+<script type="text/javascript" src="{% static 'js/manage_schedule.js' %}"></script>
+{% endblock header %}
+
+{% block content %}
+<input type="hidden" value="{{user.id}}" id="user-id">
+
+<div class="container">
+    <ul class="collapsible">
+        <li>
+            <div class="collapsible-header" id="collapsible-header-1">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-1">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-2">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-2">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-3">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-3">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-4">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-4">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-5">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-5">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-6">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-6">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header" id="collapsible-header-7">
+                <i class="material-icons">create</i>
+            </div>
+            <div class="collapsible-body" id="collapsible-body-7">
+                <div class="collection">
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+{% endblock content %}
