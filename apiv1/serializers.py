@@ -21,8 +21,8 @@ class LoginSerializer(serializers.Serializer):
         
         return data
 
-class TeachersClassDatetimeSerializer(serializers.ModelSerializer):
+class TeachersClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = tutoringapp.models.ClassModel
-        fields = ["datetime"]
+        fields = "__all__"

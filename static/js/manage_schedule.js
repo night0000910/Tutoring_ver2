@@ -24,6 +24,24 @@ $(document).ready(function() {
     }
 
     request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/");
+    request.open("GET", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/weekly_classes/");
+    request.onload = distinguishTeachersClass;
+    request.send();
 })
 
+function distinguishTeachersClass(){
+    response = JSON.parse(this.response);
+
+    for (var datetime of response){
+        datetime = new Date(datetime.year, (datetime.month-1), datetime.day, (datetime.hour+9));
+
+        id = datetime.getFullYear() + "-" + (datetime.getMonth()+1) + "-" + datetime.getDate() + "-" + datetime.getHours();
+        console.log(id);
+
+        if (document.getElementById(id) != null){
+            time = document.getElementById(id);
+            time.setAttribute("href", "#");
+            time.innerHTML += '<span class="badge">reserved</span>';
+        }
+    }
+}

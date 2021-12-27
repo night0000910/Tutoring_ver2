@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
-    "django_filters",
     "apiv1.apps.Apiv1Config",
     "tutoringapp.apps.TutoringappConfig",
 ]

@@ -7,7 +7,7 @@ USER_TYPE = [("teacher", "teacher"), ("student", "student")]
 USERS_RANK = [("bronze", "bronze"), ("silver", "silver"), ("gold", "gold"), ("diamond", "diamond")]
 
 class UserModel(AbstractUser):
-    user_type = models.TextField(choices=USER_TYPE) # ユーザーが講師か生徒かを示す
+    user_type = models.TextField(choices=USER_TYPE, default="student") # ユーザーが講師か生徒かを示す
     first_name = models.TextField(default="") # ユーザーの名前
     last_name = models.TextField(default="") # ユーザーの名字
     profile_image = models.ImageField(upload_to="", default="ProfileImage.png")
@@ -25,6 +25,6 @@ class TeacherModel(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
 
 class ClassModel(models.Model):
-    student = models.ForeignKey(StudentModel, on_delete=models.CASCADE) # 授業を受ける生徒
+    student = models.ForeignKey(StudentModel, on_delete=models.CASCADE, default=1) # 授業を受ける生徒
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE) # 授業を担当する講師
     datetime = models.DateTimeField() # 授業を開始する日付、時刻

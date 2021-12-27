@@ -6,7 +6,6 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import permissions
-from django_filters import rest_framework as filters
 
 import datetime
 
@@ -54,21 +53,16 @@ class LogoutView(views.APIView):
 
         return Response({"detail" : "ログアウトに成功しました。"})
 
-class TeachersClassFilter(filters.FilterSet):
-
-    class Meta:
-        model = tutoringapp.models.ClassModel
-        fields = ["datetime"]
-
-class TeachersClassView(views.APIView):
+class GetTeachersClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
 
         user = request.user
+        teacher = tutoringapp.models.TeacherModel.objects.get(user=user.id)
 
-        teachers_class_set = tutoringapp.models.ClassModel.objects.filter(id=user.id)
+        teachers_class_set = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id)
         teachers_class_list = change_set_to_list(teachers_class_set)
         weekly_teachers_class_list = []
 
@@ -84,18 +78,32 @@ class TeachersClassView(views.APIView):
 
             for j in range(fifteen_oclock, twenty_four_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
+                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
                     weekly_teachers_class_list.append(duplicate_class)
 
             for j in range(zero_oclock, fifteen_oclock):
-                added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
+                added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
+                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
                     weekly_teachers_class_list.append(duplicate_class)
-        
-        serializer = serializers.TeachersClassDatetimeSerializer(instance=weekly_teachers_class_list, many=True)
 
-        return Response(serializer.data, status.HTTP_200_OK)
+        datetime_list = []
+        for teachers_class in weekly_teachers_class_list:
+            year = teachers_class.datetime.year
+            month = teachers_class.datetime.month
+            day = teachers_class.datetime.day
+            hour = teachers_class.datetime.hour
+            datetime_list.append({"year" : year, "month" : month, "day" : day, "hour" : hour})
+        
+        return Response(datetime_list, status.HTTP_200_OK)
+
+class AddTeachersClassView(generics.CreateAPIView):
+
+    queryset = tutoringapp.models.TeacherModel.objects.all()
+    serializer_class = serializers.TeachersClassSerializer
+
