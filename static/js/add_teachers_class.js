@@ -4,7 +4,7 @@ $(document).ready(function() {
     console.log(notAddClassButton);
 
     addClassButton.addEventListener("click", addClass);
-    notAddClassButton = document.getElementById("click", displayManageSchedule);
+    notAddClassButton.addEventListener("click", displayManageSchedule);
 })
 
 function addClass(){

@@ -23,8 +23,10 @@ $(document).ready(function() {
         }
     }
 
+    userId = Number(document.getElementById("user-id").getAttribute("value"));
+
     request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/weekly_classes/");
+    request.open("GET", "http://127.0.0.1:8000/api/v1/users/" + userId + "/classes/weekly_classes/");
     request.onload = distinguishTeachersClass;
     request.send();
 })

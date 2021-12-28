@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+<script type="text/javascript" src="{% static 'js/choose_reserved_class_datetime.js' %}"></script>
+{% endblock header %}
+
+{% block content %}
+<input type="hidden" value="{{user.id}}" id="user-id">
+<input type="hidden" value="{{teacher_id}}" id="teacher-id">
+
+<div class="container">
+    <ul class="collapsible" id="ul">
+    </ul>
+</div>
+{% endblock content %}
