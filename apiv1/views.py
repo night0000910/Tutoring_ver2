@@ -70,13 +70,40 @@ class LogoutView(views.APIView):
 
         return Response({"detail" : "ログアウトに成功しました。"})
 
-# ユーザーの詳細情報を取得
+# ユーザーの詳細情報を取得する
 class GetUserView(views.APIView):
 
     permission_class = [permissions.IsAuthenticated]
 
     def get(self, request, user_id, *args, **kwargs):
         user = get_user_model().objects.get(id=user_id)
+
+        serializer = serializers.UserSerializer(instance=user)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+# 講師の詳細情報を取得する
+class GetTeacherView(views.APIView):
+
+    permission_class = [permissions.IsAuthenticated]
+
+    # teacher_id : 講師のTeacherModelにおけるid
+    def get(self, request, teacher_id, *args, **kwargs):
+        teacher = tutoringapp.models.TeacherModel.objects.get(id=teacher_id)
+        user = teacher.user
+
+        serializer = serializers.UserSerializer(instance=user)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+# 生徒の詳細情報を取得する
+class GetStudentView(views.APIView):
+
+    permission_class = [permissions.IsAuthenticated]
+
+    def get(self, request, student_id, *args, **kwargs):
+        student = tutoringapp.models.StudentModel.objects.get(id=student_id)
+        user = student.user
 
         serializer = serializers.UserSerializer(instance=user)
 
@@ -91,7 +118,7 @@ class CreateDummyStudentView(generics.CreateAPIView):
 
 # 授業が予約可能な講師を取得する
 # UserModelのid=1の行は、ダミーの生徒を表している
-class GetTeacherView(views.APIView):
+class GetTeachersView(views.APIView):
     
     permission_classes = [permissions.IsAuthenticated]
 
@@ -208,7 +235,7 @@ class AddReservedClassView(views.APIView):
 # ---------------------------講師関連のAPI----------------------------
 
 
-# 今日行う授業を取得する
+# 今日行う授業のうち、残りの授業を取得する
 class GetDailyTeachersReservedClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
@@ -223,6 +250,7 @@ class GetDailyTeachersReservedClassView(views.APIView):
 
         jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
+        now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
         zero_oclock = 0
         fifteen_oclock = 15
         twenty_four_oclock = 24
@@ -232,7 +260,7 @@ class GetDailyTeachersReservedClassView(views.APIView):
             print(added_datetime)
             duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
-            if duplicate_class:
+            if duplicate_class and added_datetime.timestamp() >= now.timestamp():
                 weekly_teachers_class_list.append(duplicate_class)
 
         for j in range(zero_oclock, fifteen_oclock):
@@ -240,7 +268,7 @@ class GetDailyTeachersReservedClassView(views.APIView):
             print(added_datetime)
             duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
-            if duplicate_class:
+            if duplicate_class and added_datetime.timestamp() >= now.timestamp():
                 weekly_teachers_class_list.append(duplicate_class)
         
         serializer = serializers.ClassSerializer(instance=weekly_teachers_class_list, many=True)

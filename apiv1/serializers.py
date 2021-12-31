@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        exclude = "password"
+        exclude = ["password"]
 
 class TeacherSerializer(serializers.ModelSerializer):
 

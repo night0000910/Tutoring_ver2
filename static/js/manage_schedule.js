@@ -5,7 +5,7 @@ $(document).ready(function() {
     createElementsForReservation();
 })
 
-/* これから行う予定の、1週間分の授業を表示する */
+/* 今日行う授業のうち、残りの授業を表示する */
 function displayTeachersClass(){
     var request = new XMLHttpRequest();
     request.open("GET", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/daily_classes/reserved_classes/");
@@ -21,19 +21,60 @@ function createElementsOfTeachersClass(){
 
     if (response.length != 0){
 
-        reservedClassArray = sortClassArray(response);
+        var reservedClassArray = response;
+        sortClassArray(response);
 
-        for (var reservedClass of response){
+        for (var reservedClass of reservedClassArray){
+
+            var studentId = reservedClass.student;
+            var year = reservedClass.year;
+            var month = reservedClass.month;
+            var day = reservedClass.day;
+            var hour = reservedClass.hour;
+
+            var now = new Date();
+
+            var request = new XMLHttpRequest();
+            request.open("GET", "http://127.0.0.1:8000/api/v1/users/students/" + studentId + "/", false);
+            request.send();
+
+            var response = JSON.parse(request.responseText)
+            var studentId = response.id;
+            var studentFirstName = response.first_name;
+            var studentLastName = response.last_name;
+            var studentImage = response.profile_image;
+
             var li = document.createElement("li");
             li.setAttribute("class", "collection-item avatar");
             var a = document.createElement("a");
             a.setAttribute("href", "#");
+            var img = document.createElement("img");
+            img.setAttribute("src", studentImage);
+            img.setAttribute("alt", "");
+            img.setAttribute("class", "circle");
+            var span = document.createElement("span");
+            span.setAttribute("class", "title");
+            span.innerHTML = studentFirstName + " " + studentLastName;
+            var p = document.createElement("p");
+            p.innerHTML = "<br>時間 : " + hour + "時00分〜"
 
-            createImg(a);
-
+            li.appendChild(a);
+            a.appendChild(img);
+            a.appendChild(span);
+            li.appendChild(p);
             
-        }
+            if (hour == now.getHours() && now.getMinutes() < 50){
+                var classButton = document.createElement("a");
+                classButton.setAttribute("class", "waves-effect waves-light btn-small");
+                classButton.setAttribute("href", "#");
+                classButton.innerHTML = '<i class="material-icons right">border_color</i>授業を開始する'
 
+                li.appendChild(classButton);
+            }
+
+            ul = document.getElementById("teachers-class-container");
+            ul.appendChild(li);
+        }
 
     } else{
         ul.remove()
@@ -48,15 +89,16 @@ function sortClassArray(classArray){
 
         return x.getTime() - y.getTime()
     });
-
 }
 
-function createImg(a){
-    var img = document.createElement("img");
+function getStudent(){
+    response = JSON.parse(this.response);
+    console.log(response);
 
-    var userId = 
-    var request = new XMLHttpRequest();
-    request.open("GET", );
+    studentId = response.id;
+    studentFirstName = response.first_name;
+    studentLastName = response.last_name;
+    studentImage = response.profile_image;
 }
 
 /* 授業を予約するための要素を生成する */
