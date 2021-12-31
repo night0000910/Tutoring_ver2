@@ -7,8 +7,18 @@
 
 {% block content %}
 <input type="hidden" value="{{user.id}}" id="user-id">
-
 <div class="container">
+    <ul class="collection" id="teachers-class-container">
+        <li class="collection-item avatar">
+          <a href="google.com">
+              <img src="/media/ProfileImage.png" alt="" class="circle">
+              <span class="title">山崎 世界</span>
+          </a>
+          <p><br>時間 : 21時00分〜</p>
+          <a class="waves-effect waves-light btn-small">授業を開始する<i class="material-icons right">border_color</i></a>
+        </li>
+    </ul>
+    <h5>個別指導したい時間を選択してください</h5>
     <ul class="collapsible">
         <li>
             <div class="collapsible-header" id="collapsible-header-1">

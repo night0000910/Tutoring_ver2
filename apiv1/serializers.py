@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 
 import tutoringapp.models
@@ -21,13 +21,19 @@ class LoginSerializer(serializers.Serializer):
         
         return data
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = get_user_model()
+        exclude = "password"
+
 class TeacherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = tutoringapp.models.TeacherModel
         fields = "__all__"
 
-class TeachersClassSerializer(serializers.ModelSerializer):
+class ClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = tutoringapp.models.ClassModel

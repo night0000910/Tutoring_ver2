@@ -1,33 +1,31 @@
 $(document).ready(function() {
-    addClassButton = document.getElementById("add-class-btn");
-    notAddClassButton = document.getElementById("not-add-class-btn");
+    var addClassButton = document.getElementById("add-class-btn");
+    var notAddClassButton = document.getElementById("not-add-class-btn");
     console.log(notAddClassButton);
 
-    addClassButton.addEventListener("click", addClass);
+    addClassButton.addEventListener("click", addTeachersClass);
     notAddClassButton.addEventListener("click", displayManageSchedule);
 })
 
-function addClass(){
-    userId = Number(document.getElementById("user-id").getAttribute("value"));
-    dummy_student_id = 1
-    year = document.getElementById("year").getAttribute("value");
-    month = document.getElementById("month").getAttribute("value") - 1; /* Dateオブジェクトは月の値を0~11として扱うため */
-    day = document.getElementById("day").getAttribute("value");
-    hour = document.getElementById("hour").getAttribute("value"); /* UTCとJSTの間には9時間分の時差があるため */
-    datetime = new Date(year, month, day, hour);
-    datetime_text = datetime.toISOString();
+function addTeachersClass(){
+    var userId = Number(document.getElementById("user-id").getAttribute("value"));
+    var dummy_student_id = 1
+    var year = document.getElementById("year").getAttribute("value");
+    var month = document.getElementById("month").getAttribute("value");
+    var day = document.getElementById("day").getAttribute("value");
+    var hour = document.getElementById("hour").getAttribute("value");
 
-    teachers_class = {student : dummy_student_id, teacher : userId, datetime : datetime_text};
-    json = JSON.stringify(teachers_class);
+    var teachers_class = {year : year, month : month, day : day, hour : hour};
+    var json = JSON.stringify(teachers_class);
     console.log(json);
 
-    csrfToken = getCsrfToken()
+    var csrfToken = getCsrfToken()
 
-    request = new XMLHttpRequest()
+    var request = new XMLHttpRequest()
     request.open("POST", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/");
     request.setRequestHeader("Content-type", "application/json");
     request.setRequestHeader("X-CSRFToken", csrfToken);
-    request.onload = displayManageSchedule
+    request.onload = displayManageSchedule;
     request.send(json);
 }
 
@@ -38,14 +36,14 @@ function displayManageSchedule(){
 }
 
 function getCsrfToken(){
-    cookies = document.cookie;
-    cookiesArray = cookies.split(";");
+    var cookies = document.cookie;
+    var cookiesArray = cookies.split(";");
 
-    for (cookie of cookiesArray){
-        cookieArray = cookie.split("=");
+    for (var cookie of cookiesArray){
+        var cookieArray = cookie.split("=");
 
         if (cookieArray[0] == "csrftoken"){
-            csrfToken = cookieArray[1];
+            var csrfToken = cookieArray[1];
         }
     }
 

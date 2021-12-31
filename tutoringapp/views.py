@@ -41,6 +41,7 @@ def login_view(request):
 # ---------------------------生徒専用のページ----------------------------
 
 
+# 授業が予約可能な講師を表示する
 def reserve_view(request):
 
     if request.user.is_authenticated:
@@ -56,6 +57,7 @@ def reserve_view(request):
 
         return redirect("home_page")
 
+# 講師の、予約可能な授業を表示する
 def choose_reserved_class_datetime_view(request, teacher_id):
 
     if request.user.is_authenticated:
@@ -63,6 +65,21 @@ def choose_reserved_class_datetime_view(request, teacher_id):
 
         if user.user_type == "student":
             return render(request, "choose_reserved_class_datetime.html", {"teacher_id" : teacher_id})
+        
+        elif user.user_type == "teacher":
+            return redirect("manage_schedule")
+    
+    else:
+
+        return redirect("home_page")
+
+def add_reserved_class_view(request, teacher_id, year, month, day, hour):
+
+    if request.user.is_authenticated:
+        user = request.user
+
+        if user.user_type == "student":
+            return render(request, "add_reserved_class.html", {"teacher_id" : teacher_id, "year" : year, "month" : month, "day" : day, "hour" : hour})
         
         elif user.user_type == "teacher":
             return redirect("manage_schedule")
