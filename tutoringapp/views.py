@@ -37,6 +37,15 @@ def login_view(request):
         
         return render(request, "login.html")
 
+# ユーザーのプロフィールを表示する
+def profile_view(request):
+
+    if request.user.is_authenticated:
+        return render(request, "profile.html")
+
+    else:
+        return redirect("home_page")
+
 
 # ---------------------------生徒専用のページ----------------------------
 

@@ -22,7 +22,7 @@ function addTeachersClass(){
     var csrfToken = getCsrfToken()
 
     var request = new XMLHttpRequest()
-    request.open("POST", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/");
+    request.open("POST", "/api/v1/users/authenticated_teacher/classes/");
     request.setRequestHeader("Content-type", "application/json");
     request.setRequestHeader("X-CSRFToken", csrfToken);
     request.onload = displayManageSchedule;
@@ -31,7 +31,7 @@ function addTeachersClass(){
 
 function displayManageSchedule(){
 
-    window.location.href = "http://127.0.0.1:8000/tutoring/manage_schedule/";
+    window.location.href = "/tutoring/manage_schedule/";
 
 }
 

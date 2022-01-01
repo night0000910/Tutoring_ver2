@@ -20,11 +20,26 @@
 
     <nav>
         <div class="nav-wrapper">
-          <a href="#" class="brand-logo">個別指導Online</a>
+          {% if user.is_authenticated %}
+            {% if user.user_type == "teacher" %}
+            <a href="/tutoring/manage_schedule/" class="brand-logo">個別指導Online</a>
+            {% elif user.user_type == "student" %}
+            <a href="/tutoring/reserve/" class="brand-logo">個別指導Online</a>
+            {% endif %}
+          {% else %}
+          <a href="/tutoring/home_page/" class="brand-logo">個別指導Online</a>
+          {% endif %}
+
           <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="#">Sass</a></li>
-            <li><a href="#">Components</a></li>
-            <li><a href="#">JavaScript</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="#">授業を予約</a></li>
+            <li><a href="#">マイページ</a></li>
+            <li><a href="#">ログアウト</a></li>
+            {% else %}
+            <li><a href="#">ホーム</a></li>
+            <li><a href="#">ログイン</a></li>
+            <li><a href="#">アカウントを作成</a></li>
+            {% endif %}
           </ul>
         </div>
     </nav>

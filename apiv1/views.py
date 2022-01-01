@@ -207,7 +207,6 @@ class GetDailySpecificReservedClassView(views.APIView):
         fifteen_oclock = 15
         twenty_four_oclock = 24
 
-
         for j in range(fifteen_oclock, twenty_four_oclock):
             added_datetime = today.replace(hour=j)
             duplicate_class = return_datetime_duplicate_class(reserved_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)

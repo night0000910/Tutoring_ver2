@@ -5,7 +5,7 @@ $(document).ready(function() {
     var teacherId = Number(document.getElementById("teacher-id").getAttribute("value"));
 
     var request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/classes/weekly_classes/?teacher_id=" + teacherId + "&student_id=1");
+    request.open("GET", "/api/v1/classes/weekly_classes/?teacher_id=" + teacherId + "&student_id=1");
     request.onload = displayTeachersClass;
     request.send();
 })
@@ -20,7 +20,7 @@ function displayTeachersClass(){
     var teacherId = Number(document.getElementById("teacher-id").getAttribute("value"));
     var userId = Number(document.getElementById("user-id").getAttribute("value"));
     var request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/classes/weekly_classes/?teacher_id=" + teacherId + "&student_id=" + userId);
+    request.open("GET", "/api/v1/classes/weekly_classes/?teacher_id=" + teacherId + "&student_id=" + userId);
     request.onload = displayReservedClass;
     request.send();
 }
@@ -90,14 +90,14 @@ function createElements(dateArray, datetimeArray){
             var a = document.createElement("a");
             a.setAttribute("class", "collection-item");
             a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
-            a.setAttribute("href", "http://127.0.0.1:8000/tutoring/add_reserved_class/" + teacherId + "/" + datetime.year + "/" + datetime.month + "/" + datetime.day + "/" + datetime.hour + "/");
+            a.setAttribute("href", "/tutoring/add_reserved_class/" + teacherId + "/" + datetime.year + "/" + datetime.month + "/" + datetime.day + "/" + datetime.hour + "/");
             a.innerHTML = datetime.hour + ":00";
 
             var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
             div.appendChild(a);
         }
     } else {
-        window.location.href = "http://127.0.0.1:8000/tutoring/reserve/";
+        window.location.href = "/tutoring/reserve/";
     }
 }
 

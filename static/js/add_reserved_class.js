@@ -14,7 +14,7 @@ function getClassId(){
     var hour = document.getElementById("hour").getAttribute("value");
 
     var request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/classes/?teacher_id=" + teacherId + "&year=" + year + "&month=" + month + "&day=" + day + "&hour=" + hour);
+    request.open("GET", "/api/v1/classes/?teacher_id=" + teacherId + "&year=" + year + "&month=" + month + "&day=" + day + "&hour=" + hour);
     request.onload = addReservedClass;
     request.send();
 }
@@ -26,7 +26,7 @@ function addReservedClass(){
     var classId = response.id;
     var csrfToken = getCsrfToken();
     var request = new XMLHttpRequest();
-    request.open("PATCH", "http://127.0.0.1:8000/api/v1/classes/" + classId + "/");
+    request.open("PATCH", "/api/v1/classes/" + classId + "/");
     request.setRequestHeader("X-CSRFToken", csrfToken);
     request.onload = displayChooseReservedClassDatetime;
     request.send();
@@ -50,6 +50,6 @@ function getCsrfToken(){
 
 function displayChooseReservedClassDatetime(){
     var teacherId = document.getElementById("teacher-id").getAttribute("value");
-    window.location.href = "http://127.0.0.1:8000/tutoring/choose_reserved_class_datetime/" + teacherId + "/";
+    window.location.href = "/tutoring/choose_reserved_class_datetime/" + teacherId + "/";
 
 }

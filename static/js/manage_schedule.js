@@ -8,7 +8,7 @@ $(document).ready(function() {
 /* 今日行う授業のうち、残りの授業を表示する */
 function displayReservedClass(){
     var request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/daily_classes/reserved_classes/");
+    request.open("GET", "/api/v1/users/authenticated_teacher/classes/daily_classes/reserved_classes/");
     request.onload = createElementsOfReservedClass;
     request.send()
 }
@@ -35,11 +35,10 @@ function createElementsOfReservedClass(){
             var now = new Date();
 
             var request = new XMLHttpRequest();
-            request.open("GET", "http://127.0.0.1:8000/api/v1/users/" + studentId + "/", false);
+            request.open("GET", "/api/v1/users/" + studentId + "/", false);
             request.send();
 
             var response = JSON.parse(request.responseText)
-            var studentId = response.id;
             var studentFirstName = response.first_name;
             var studentLastName = response.last_name;
             var studentImage = response.profile_image;
@@ -54,7 +53,7 @@ function createElementsOfReservedClass(){
             img.setAttribute("class", "circle");
             var span = document.createElement("span");
             span.setAttribute("class", "title");
-            span.innerHTML = studentFirstName + " " + studentLastName;
+            span.innerHTML = studentLastName + " " + studentFirstName;
             var p = document.createElement("p");
             p.innerHTML = "<br>時間 : " + hour + "時00分〜"
 
@@ -118,7 +117,7 @@ function createElementsForReservation(){
             var time = document.createElement("a");
             time.setAttribute("class", "collection-item");
             time.setAttribute("id", date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + "-" + date.getHours())
-            time.setAttribute("href", "http://127.0.0.1:8000/tutoring/add_teachers_class/" + date.getFullYear() + "/" + (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getHours() + "/");
+            time.setAttribute("href", "/tutoring/add_teachers_class/" + date.getFullYear() + "/" + (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getHours() + "/");
             time.innerHTML = date.getHours() + ":00";
             collection.appendChild(time);
             date.setHours(date.getHours() + 1);
@@ -128,7 +127,7 @@ function createElementsForReservation(){
     var userId = Number(document.getElementById("user-id").getAttribute("value"));
 
     var request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/api/v1/users/" + userId + "/classes/weekly_classes/");
+    request.open("GET", "/api/v1/users/" + userId + "/classes/weekly_classes/");
     request.onload = distinguishTeachersClass;
     request.send();
 }
