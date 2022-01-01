@@ -14,7 +14,7 @@ function displayTeachers(){
         div.setAttribute("class", "collapsible-header");
         div.setAttribute("id", teacher.user_id);
         div.setAttribute("onclick", "displayChooseReservedClassDatetime(this)");
-        div.innerHTML = '<i class="material-icons">create</i>' + teacher.username
+        div.innerHTML = '<i class="material-icons">create</i>' + teacher.username;
 
         var ul = document.getElementById("ul");
         li.appendChild(div);

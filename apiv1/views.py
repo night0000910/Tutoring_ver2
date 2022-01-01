@@ -49,6 +49,74 @@ def return_datetime_duplicate_class(class_list, year, month, day, hour):
     
     return duplicate_class
 
+# UTCをJSTに変換する
+# 引数には、UTCとしての日付、時刻を受け取る
+def change_utc_to_jst(year, month, day, hour):
+
+    time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone(datetime.timedelta(hours=9)))
+    time += datetime.timedelta(hours=9) # JSTをUTCに変換
+
+    year = time.year
+    month = time.month
+    day = time.day
+    hour = time.hour
+
+    return (year, month, day, hour)
+
+# JSTをUTCに変換する
+# 引数には、JSTとしての日付、時刻を受け取る
+def change_jst_to_utc(year, month, day, hour):
+
+    time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone.utc)
+    time -= datetime.timedelta(hours=9) # JSTをUTCに変換
+
+    year = time.year
+    month = time.month
+    day = time.day
+    hour = time.hour
+
+    return (year, month, day, hour)
+
+def serialize_class_list(class_list):
+
+    serializer = serializers.ClassSerializer(instance=class_list, many=True)
+    class_list = serializer.data
+
+    for i, specific_class in enumerate(class_list):
+
+        class_datetime = specific_class.pop("datetime") # class_datetime変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
+        class_datetime_list = class_datetime.split("T")
+        date = class_datetime_list[0] # 日付を表す文字列
+        time = class_datetime_list[1] # 時刻を表す文字列
+        time = time.split("+")[0]
+
+        date_list = date.split("-")
+        year = int(date_list[0])
+        month = int(date_list[1])
+        day = int(date_list[2])
+
+        time_list = time.split(":")
+        hour = int(time_list[0])
+
+        class_list[i]["year"] = year
+        class_list[i]["month"] = month
+        class_list[i]["day"] = day
+        class_list[i]["hour"] = hour
+
+        student_id = specific_class.pop("student") # student_idは、生徒のStudentModelにおけるid
+        teacher_id = specific_class.pop("teacher") # teacher_idは、講師のTeacherModelにおけるid
+
+        student = tutoringapp.models.StudentModel.objects.get(id=student_id)
+        student = student.user
+        student_id = student.id # student_idをUserModelにおけるidに更新
+        teacher = tutoringapp.models.TeacherModel.objects.get(id=teacher_id)
+        teacher = teacher.user
+        teacher_id = teacher.id # teacher_idをUserModelにおけるidに更新
+
+        class_list[i]["student_id"] = student_id
+        class_list[i]["teacher_id"] = teacher_id
+    
+    return class_list
 
 # -------------------------講師・生徒共通のAPI-------------------------
 
@@ -75,35 +143,9 @@ class GetUserView(views.APIView):
 
     permission_class = [permissions.IsAuthenticated]
 
+    # user_id : ユーザーのUserModelにおけるid
     def get(self, request, user_id, *args, **kwargs):
         user = get_user_model().objects.get(id=user_id)
-
-        serializer = serializers.UserSerializer(instance=user)
-
-        return Response(serializer.data, status.HTTP_200_OK)
-
-# 講師の詳細情報を取得する
-class GetTeacherView(views.APIView):
-
-    permission_class = [permissions.IsAuthenticated]
-
-    # teacher_id : 講師のTeacherModelにおけるid
-    def get(self, request, teacher_id, *args, **kwargs):
-        teacher = tutoringapp.models.TeacherModel.objects.get(id=teacher_id)
-        user = teacher.user
-
-        serializer = serializers.UserSerializer(instance=user)
-
-        return Response(serializer.data, status.HTTP_200_OK)
-
-# 生徒の詳細情報を取得する
-class GetStudentView(views.APIView):
-
-    permission_class = [permissions.IsAuthenticated]
-
-    def get(self, request, student_id, *args, **kwargs):
-        student = tutoringapp.models.StudentModel.objects.get(id=student_id)
-        user = student.user
 
         serializer = serializers.UserSerializer(instance=user)
 
@@ -134,8 +176,11 @@ class GetTeachersView(views.APIView):
             for teachers_class in teachers_class_set:
 
                 if judge_datetime_is_within_oneweek(teachers_class.datetime) and teachers_class.student.user.id == 1: # ClassModelにおいてstudent列の値が1(ダミーの生徒)の授業は、予約されていない授業を表す
-                    teachers_list.append({"username" : teacher.user.username, "user_id" : teacher.user.id})
+                    teacher = teacher.user # TeacherModelからUserModelへ変換
+                    teachers_list.append(teacher)
                     break
+        
+        serializer = serializers.UserSerializer(teachers_list)
 
         return Response(teachers_list, status.HTTP_200_OK)
 
@@ -182,32 +227,28 @@ class GetWeeklySpecificTeachersReservedClassView(views.APIView):
                 if duplicate_class:
                     weekly_teachers_class_list.append(duplicate_class)
 
-        datetime_list = []
-        for teachers_class in weekly_teachers_class_list:
-            year = teachers_class.datetime.year
-            month = teachers_class.datetime.month
-            day = teachers_class.datetime.day
-            hour = teachers_class.datetime.hour
-            datetime_list.append({"year" : year, "month" : month, "day" : day, "hour" : hour})
+        weekly_teachers_class_list = serialize_class_list(weekly_teachers_class_list)
         
-        return Response(datetime_list, status.HTTP_200_OK)
+        return Response(weekly_teachers_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
 
 # クラスの詳細情報を取得する
+# 講師id, 日付、時刻からクラスを特定する
 class GetClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
 
-        teacher_id = request.query_params.get("teacher_id")
+        teacher_id = request.query_params.get("teacher_id") # 講師のUserModelにおけるid
         teacher = tutoringapp.models.TeacherModel.objects.get(user=teacher_id)
 
         year = int(request.query_params.get("year")) # JSTとして日時を取得する
         month = int(request.query_params.get("month"))
         day = int(request.query_params.get("day"))
         hour = int(request.query_params.get("hour"))
+
+        year, month, day, hour = change_jst_to_utc(year, month, day, hour)
         time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone.utc)
-        time -= datetime.timedelta(hours=9) # JSTをUTCに変換
 
         teachers_class = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id).get(datetime=time)
         serializer = serializers.ClassSerializer(instance=teachers_class)
@@ -246,7 +287,7 @@ class GetDailyTeachersReservedClassView(views.APIView):
 
         teachers_class_set = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id).exclude(student=1)
         teachers_class_list = change_set_to_list(teachers_class_set)
-        weekly_teachers_class_list = []
+        daily_teachers_class_list = []
 
         jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
@@ -257,45 +298,21 @@ class GetDailyTeachersReservedClassView(views.APIView):
 
         for j in range(fifteen_oclock, twenty_four_oclock):
             added_datetime = today.replace(hour=j)
-            print(added_datetime)
             duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
             if duplicate_class and added_datetime.timestamp() >= now.timestamp():
-                weekly_teachers_class_list.append(duplicate_class)
+                daily_teachers_class_list.append(duplicate_class)
 
         for j in range(zero_oclock, fifteen_oclock):
             added_datetime = today.replace(hour=j) + datetime.timedelta(days=1)
-            print(added_datetime)
             duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
             if duplicate_class and added_datetime.timestamp() >= now.timestamp():
-                weekly_teachers_class_list.append(duplicate_class)
+                daily_teachers_class_list.append(duplicate_class)
         
-        serializer = serializers.ClassSerializer(instance=weekly_teachers_class_list, many=True)
-        weekly_teachers_class_list = serializer.data
+        daily_teachers_class_list = serialize_class_list(daily_teachers_class_list)
 
-        for i, weekly_teachers_class in enumerate(weekly_teachers_class_list):
-
-            class_datetime = weekly_teachers_class.pop("datetime") # class_datetime変数には、ISO8601に則って表記された日時の文字列が格納されている
-            class_datetime_list = class_datetime.split("T")
-            date = class_datetime_list[0] # 日付を表す文字列
-            time = class_datetime_list[1] # 時刻を表す文字列
-            time = time.split("+")[0]
-
-            date_list = date.split("-")
-            year = int(date_list[0])
-            month = int(date_list[1])
-            day = int(date_list[2])
-
-            time_list = time.split(":")
-            hour = int(time_list[0])
-
-            weekly_teachers_class_list[i]["year"] = year
-            weekly_teachers_class_list[i]["month"] = month
-            weekly_teachers_class_list[i]["day"] = day
-            weekly_teachers_class_list[i]["hour"] = hour
-
-        return Response(serializer.data, status.HTTP_200_OK)
+        return Response(daily_teachers_class_list, status.HTTP_200_OK)
 
 # 講師の一週間分の、生徒が予約した授業を取得する
 class GetWeeklyTeachersReservedClassView(views.APIView):
@@ -322,7 +339,6 @@ class GetWeeklyTeachersReservedClassView(views.APIView):
 
             for j in range(fifteen_oclock, twenty_four_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
-                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
@@ -330,37 +346,14 @@ class GetWeeklyTeachersReservedClassView(views.APIView):
 
             for j in range(zero_oclock, fifteen_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
-                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
                     weekly_teachers_class_list.append(duplicate_class)
         
-        serializer = serializers.ClassSerializer(instance=weekly_teachers_class_list, many=True)
-        weekly_teachers_class_list = serializer.data
+        weekly_teachers_class_list = serialize_class_list(weekly_teachers_class_list)
 
-        for i, weekly_teachers_class in enumerate(weekly_teachers_class_list):
-
-            class_datetime = weekly_teachers_class.pop("datetime") # class_datetime変数には、ISO8601に則って表記された日時の文字列が格納されている
-            class_datetime_list = class_datetime.split("T")
-            date = class_datetime_list[0] # 日付を表す文字列
-            time = class_datetime_list[1] # 時刻を表す文字列
-            time = time.split("+")[0]
-
-            date_list = date.split("-")
-            year = int(date_list[0])
-            month = int(date_list[1])
-            day = int(date_list[2])
-
-            time_list = time.split(":")
-            hour = int(time_list[0])
-
-            weekly_teachers_class_list[i]["year"] = year
-            weekly_teachers_class_list[i]["month"] = month
-            weekly_teachers_class_list[i]["day"] = day
-            weekly_teachers_class_list[i]["hour"] = hour
-
-        return Response(serializer.data, status.HTTP_200_OK)
+        return Response(weekly_teachers_class_list, status.HTTP_200_OK)
 
 
 # 講師の一週間分の授業を取得する
@@ -372,7 +365,7 @@ class GetWeeklyTeachersClassView(views.APIView):
     def get(self, request, teacher_id, *args, **kwargs):
 
         teacher = tutoringapp.models.TeacherModel.objects.get(user=teacher_id)
-
+        
         teachers_class_set = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id) # 講師が登録した全ての授業のセット
         teachers_class_list = change_set_to_list(teachers_class_set)
         weekly_teachers_class_list = []
@@ -389,7 +382,6 @@ class GetWeeklyTeachersClassView(views.APIView):
 
             for j in range(fifteen_oclock, twenty_four_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
-                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
@@ -397,21 +389,18 @@ class GetWeeklyTeachersClassView(views.APIView):
 
             for j in range(zero_oclock, fifteen_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
-                print(added_datetime)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class:
                     weekly_teachers_class_list.append(duplicate_class)
-
-        datetime_list = []
-        for teachers_class in weekly_teachers_class_list:
-            year = teachers_class.datetime.year
-            month = teachers_class.datetime.month
-            day = teachers_class.datetime.day
-            hour = teachers_class.datetime.hour
-            datetime_list.append({"year" : year, "month" : month, "day" : day, "hour" : hour})
         
-        return Response(datetime_list, status.HTTP_200_OK)
+
+        for weekly_teachers_class in weekly_teachers_class_list:
+            print(weekly_teachers_class.datetime)
+
+        weekly_teachers_class_list = serialize_class_list(weekly_teachers_class_list)
+        
+        return Response(weekly_teachers_class_list, status.HTTP_200_OK)
 
 # 講師が授業を登録する
 class AddTeachersClassView(views.APIView):
@@ -426,8 +415,9 @@ class AddTeachersClassView(views.APIView):
         month = int(request.data.get("month"))
         day = int(request.data.get("day"))
         hour = int(request.data.get("hour"))
+
+        year, month, day, hour = change_jst_to_utc(year, month, day, hour)
         time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone.utc)
-        time -= datetime.timedelta(hours=9) # JSTをUTCに変換
         time_text = time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         serializer = serializers.ClassSerializer(data={"student" : 1, "teacher" : teacher.id, "datetime" : time_text})

@@ -26,7 +26,7 @@ function createElementsOfTeachersClass(){
 
         for (var reservedClass of reservedClassArray){
 
-            var studentId = reservedClass.student;
+            var studentId = reservedClass.student_id;
             var year = reservedClass.year;
             var month = reservedClass.month;
             var day = reservedClass.day;
@@ -35,7 +35,7 @@ function createElementsOfTeachersClass(){
             var now = new Date();
 
             var request = new XMLHttpRequest();
-            request.open("GET", "http://127.0.0.1:8000/api/v1/users/students/" + studentId + "/", false);
+            request.open("GET", "http://127.0.0.1:8000/api/v1/users/" + studentId + "/", false);
             request.send();
 
             var response = JSON.parse(request.responseText)
@@ -136,10 +136,8 @@ function createElementsForReservation(){
 function distinguishTeachersClass(){
     var response = JSON.parse(this.response);
 
-    for (var datetime of response){
-        var datetime = new Date(datetime.year, (datetime.month-1), datetime.day, (datetime.hour+9)); /* UTCをJSTに変換 */
-
-        var id = datetime.getFullYear() + "-" + (datetime.getMonth()+1) + "-" + datetime.getDate() + "-" + datetime.getHours();
+    for (var teachersClass of response){
+        var id = teachersClass.year + "-" + teachersClass.month + "-" + teachersClass.day + "-" + teachersClass.hour;
         console.log(id);
 
         if (document.getElementById(id) != null){

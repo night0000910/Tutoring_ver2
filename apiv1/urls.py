@@ -9,8 +9,6 @@ urlpatterns = [
     path("login/", views.LoginView.as_view()),
     path("logout/", views.LogoutView.as_view()),
     path("users/<user_id>/", views.GetUserView.as_view()), # ユーザーの詳細情報を取得する
-    path("users/teachers/<teacher_id>/", views.GetTeacherView.as_view()), # 講師の詳細情報を取得する
-    path("users/students/<student_id>/", views.GetStudentView.as_view()), # 生徒の詳細情報を取得する
     path("classes/non_reserved_classes/teachers/", views.GetTeachersView.as_view()), # 授業が予約可能な講師を取得する
     path("classes/weekly_classes/", views.GetWeeklySpecificTeachersReservedClassView.as_view()), # 講師の一週間分の、特定の生徒が予約した授業を取得する
     path("classes/", views.GetClassView.as_view()), # クラスの詳細情報を取得する
