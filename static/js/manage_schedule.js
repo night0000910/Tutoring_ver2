@@ -1,23 +1,23 @@
 $(document).ready(function() {
     $('.collapsible').collapsible();
 
-    displayTeachersClass();
+    displayReservedClass();
     createElementsForReservation();
 })
 
 /* 今日行う授業のうち、残りの授業を表示する */
-function displayTeachersClass(){
+function displayReservedClass(){
     var request = new XMLHttpRequest();
     request.open("GET", "http://127.0.0.1:8000/api/v1/users/authenticated_teacher/classes/daily_classes/reserved_classes/");
-    request.onload = createElementsOfTeachersClass;
+    request.onload = createElementsOfReservedClass;
     request.send()
 }
 
-function createElementsOfTeachersClass(){
+function createElementsOfReservedClass(){
     var response = JSON.parse(this.response);
     console.log(response);
 
-    var ul = document.getElementById("teachers-class-container");
+    var ul = document.getElementById("reserved-class-container");
 
     if (response.length != 0){
 
@@ -72,7 +72,7 @@ function createElementsOfTeachersClass(){
                 li.appendChild(classButton);
             }
 
-            ul = document.getElementById("teachers-class-container");
+            ul = document.getElementById("reserved-class-container");
             ul.appendChild(li);
         }
 

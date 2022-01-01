@@ -12,8 +12,8 @@ $(document).ready(function() {
 
 function displayTeachersClass(){
     var response = JSON.parse(this.response);
-    datetimeArray = createDatetimeArray(response); /* datetimeArrayはグローバル変数。displayReservedClassメソッドでも利用される。 */
-    var dateArray = createDateArray(datetimeArray);
+    datetimeArray = createDatetimeArray(response); /* datetimeArrayはグローバル変数。配列には授業を表す辞書が入っている。displayReservedClassメソッドでも利用される。 */
+    var dateArray = createDateArray(datetimeArray); 
 
     createElements(dateArray, datetimeArray);
 
@@ -27,13 +27,6 @@ function displayTeachersClass(){
 
 function createDatetimeArray(response){
     var datetimeArray = response
-
-    for (var i = 0; i <= datetimeArray.length-1; i++){
-        var datetime = datetimeArray[i];
-        datetime = new Date(datetime.year, datetime.month-1, datetime.day, datetime.hour+9); /* UTCをJSTに変換 */
-        datetimeArray[i] = {year : datetime.getFullYear(), month : datetime.getMonth()+1, day : datetime.getDate(), hour : datetime.getHours()};
-    }
-
     sortDatetimeArray(datetimeArray);
 
     return datetimeArray
@@ -68,37 +61,43 @@ function createDateArray(datetimeArray){
 
 function createElements(dateArray, datetimeArray){
 
-    for (var date of dateArray){
+    if (datetimeArray.length >= 1){
 
-        var li = document.createElement("li");
-        var collapsibleHeader = document.createElement("div");
-        collapsibleHeader.setAttribute("class", "collapsible-header");
-        collapsibleHeader.innerHTML = '<i class="material-icons">create</i>' + date.month + "月" + date.day + "日"
-        var collapsibleBody = document.createElement("div");
-        collapsibleBody.setAttribute("class", "collapsible-body");
-        var collection = document.createElement("div");
-        collection.setAttribute("class", "collection");
-        collection.setAttribute("id", date.year + "-" + date.month + "-" + date.day);
+        for (var date of dateArray){
+            console.log(date);
 
-        li.appendChild(collapsibleHeader);
-        li.appendChild(collapsibleBody);
-        collapsibleBody.appendChild(collection);
+            var li = document.createElement("li");
+            var collapsibleHeader = document.createElement("div");
+            collapsibleHeader.setAttribute("class", "collapsible-header");
+            collapsibleHeader.innerHTML = '<i class="material-icons">create</i>' + date.month + "月" + date.day + "日"
+            var collapsibleBody = document.createElement("div");
+            collapsibleBody.setAttribute("class", "collapsible-body");
+            var collection = document.createElement("div");
+            collection.setAttribute("class", "collection");
+            collection.setAttribute("id", date.year + "-" + date.month + "-" + date.day);
 
-        var ul = document.getElementById("ul");
-        ul.appendChild(li);
-    }
+            li.appendChild(collapsibleHeader);
+            li.appendChild(collapsibleBody);
+            collapsibleBody.appendChild(collection);
 
-    var teacherId = document.getElementById("teacher-id").getAttribute("value");
+            var ul = document.getElementById("ul");
+            ul.appendChild(li);
+        }
 
-    for (var datetime of datetimeArray){
-        var a = document.createElement("a");
-        a.setAttribute("class", "collection-item");
-        a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
-        a.setAttribute("href", "http://127.0.0.1:8000/tutoring/add_reserved_class/" + teacherId + "/" + datetime.year + "/" + datetime.month + "/" + datetime.day + "/" + datetime.hour + "/");
-        a.innerHTML = datetime.hour + ":00";
+        var teacherId = document.getElementById("teacher-id").getAttribute("value");
 
-        var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
-        div.appendChild(a);
+        for (var datetime of datetimeArray){
+            var a = document.createElement("a");
+            a.setAttribute("class", "collection-item");
+            a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
+            a.setAttribute("href", "http://127.0.0.1:8000/tutoring/add_reserved_class/" + teacherId + "/" + datetime.year + "/" + datetime.month + "/" + datetime.day + "/" + datetime.hour + "/");
+            a.innerHTML = datetime.hour + ":00";
+
+            var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
+            div.appendChild(a);
+        }
+    } else {
+        window.location.href = "http://127.0.0.1:8000/tutoring/reserve/";
     }
 }
 
@@ -106,8 +105,6 @@ function displayReservedClass(){
     var response = JSON.parse(this.response);
 
     for (var datetime of response){
-        var datetime = new Date(datetime.year, (datetime.month-1), datetime.day, (datetime.hour+9)); /* UTCをJSTに変換 */
-        datetime = {year : datetime.getFullYear(), month : datetime.getMonth()+1, day : datetime.getDate(), hour : datetime.getHours()};
         datetimeArray.push(datetime);
     }
     
@@ -117,51 +114,10 @@ function displayReservedClass(){
 }
 
 function addElements(datetimeArray){
-    var datetime = datetimeArray[0];
-    var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
-    var a = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
 
-    if (div == null){
-        var li = document.createElement("li");
-        var collapsibleHeader = document.createElement("div");
-        collapsibleHeader.setAttribute("class", "collapsible-header");
-        collapsibleHeader.innerHTML = '<i class="material-icons">create</i>' + datetime.month + "月" + datetime.day + "日"
-        var collapsibleBody = document.createElement("div");
-        collapsibleBody.setAttribute("class", "collapsible-body");
-        var collection = document.createElement("div");
-        collection.setAttribute("class", "collection");
-        collection.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day);
+    if (datetimeArray.length >= 1){
 
-        li.appendChild(collapsibleHeader);
-        li.appendChild(collapsibleBody);
-        collapsibleBody.appendChild(collection);
-
-        var ul = document.getElementById("ul");
-        ul.insertBefore(li, ul.firstChild);
-
-        var a = document.createElement("a");
-        a.setAttribute("class", "collection-item");
-        a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
-        a.setAttribute("href", "#");
-        a.innerHTML = datetime.hour + ":00";
-        a.innerHTML += '<span class="badge">reserved</span>';
-        collection.insertBefore(a, collection.firstChild);
-
-    } else if (a == null){
-        var a = document.createElement("a");
-        a.setAttribute("class", "collection-item");
-        a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
-        a.setAttribute("href", "#");
-        a.innerHTML = datetime.hour + ":00";
-        a.innerHTML += '<span class="badge">reserved</span>';
-
-        div.insertBefore(a, div.firstChild);
-    }
-
-    
-    for (var i = 1; i <= datetimeArray.length-1; i++){
-        var datetime = datetimeArray[i];
-        var previousDatetime = datetimeArray[i-1];
+        var datetime = datetimeArray[0];
         var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
         var a = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
 
@@ -175,16 +131,14 @@ function addElements(datetimeArray){
             var collection = document.createElement("div");
             collection.setAttribute("class", "collection");
             collection.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day);
-    
+
             li.appendChild(collapsibleHeader);
             li.appendChild(collapsibleBody);
             collapsibleBody.appendChild(collection);
 
-            var previousLi = document.getElementById(previousDatetime.year + "-" + previousDatetime.month + "-" + previousDatetime.day).parentElement.parentElement;
-            var formerLi = previousLi.nextSibling;
             var ul = document.getElementById("ul");
-            ul.insertBefore(li, formerLi);
-    
+            ul.insertBefore(li, ul.firstChild);
+
             var a = document.createElement("a");
             a.setAttribute("class", "collection-item");
             a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
@@ -201,26 +155,73 @@ function addElements(datetimeArray){
             a.innerHTML = datetime.hour + ":00";
             a.innerHTML += '<span class="badge">reserved</span>';
 
-            var previousA = document.getElementById(previousDatetime.year + "-" + previousDatetime.month + "-" + previousDatetime.day + "-" + previousDatetime.hour);
-            var divChildren = div.childNodes;
-            var duplicate = false;
+            div.insertBefore(a, div.firstChild);
+        }
 
-            for (var divChild of divChildren){
+        
+        for (var i = 1; i <= datetimeArray.length-1; i++){
+            var datetime = datetimeArray[i];
+            var previousDatetime = datetimeArray[i-1];
+            var div = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day);
+            var a = document.getElementById(datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
 
-                if (divChild == previousA){
-                    duplicate = true;
+            if (div == null){
+                var li = document.createElement("li");
+                var collapsibleHeader = document.createElement("div");
+                collapsibleHeader.setAttribute("class", "collapsible-header");
+                collapsibleHeader.innerHTML = '<i class="material-icons">create</i>' + datetime.month + "月" + datetime.day + "日"
+                var collapsibleBody = document.createElement("div");
+                collapsibleBody.setAttribute("class", "collapsible-body");
+                var collection = document.createElement("div");
+                collection.setAttribute("class", "collection");
+                collection.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day);
+        
+                li.appendChild(collapsibleHeader);
+                li.appendChild(collapsibleBody);
+                collapsibleBody.appendChild(collection);
+
+                var previousLi = document.getElementById(previousDatetime.year + "-" + previousDatetime.month + "-" + previousDatetime.day).parentElement.parentElement;
+                var formerLi = previousLi.nextSibling;
+                var ul = document.getElementById("ul");
+                ul.insertBefore(li, formerLi);
+        
+                var a = document.createElement("a");
+                a.setAttribute("class", "collection-item");
+                a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
+                a.setAttribute("href", "#");
+                a.innerHTML = datetime.hour + ":00";
+                a.innerHTML += '<span class="badge">reserved</span>';
+                collection.insertBefore(a, collection.firstChild);
+
+            } else if (a == null){
+                var a = document.createElement("a");
+                a.setAttribute("class", "collection-item");
+                a.setAttribute("id", datetime.year + "-" + datetime.month + "-" + datetime.day + "-" + datetime.hour);
+                a.setAttribute("href", "#");
+                a.innerHTML = datetime.hour + ":00";
+                a.innerHTML += '<span class="badge">reserved</span>';
+
+                var previousA = document.getElementById(previousDatetime.year + "-" + previousDatetime.month + "-" + previousDatetime.day + "-" + previousDatetime.hour);
+                var divChildren = div.childNodes;
+                var duplicate = false;
+
+                for (var divChild of divChildren){
+
+                    if (divChild == previousA){
+                        duplicate = true;
+                    }
                 }
-            }
-            
-            if (duplicate == true){
-                var formerA = previousA.nextSibling;
-                div.insertBefore(a, formerA);
+                
+                if (duplicate == true){
+                    var formerA = previousA.nextSibling;
+                    div.insertBefore(a, formerA);
 
-            } else{
-                div.insertBefore(a, div.firstChild);
+                } else{
+                    div.insertBefore(a, div.firstChild);
+                }
+
             }
 
         }
-
     }
 }
