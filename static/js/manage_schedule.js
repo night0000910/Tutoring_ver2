@@ -76,8 +76,9 @@ function createElementsOfReservedClass(){
         }
 
     } else{
-        ul.remove()
-
+        ul.remove();
+        h5 = document.getElementById("daily-reserved-class");
+        h5.remove();
     }
 }
 

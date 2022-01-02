@@ -6,8 +6,10 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import permissions
+from dateutil.relativedelta import relativedelta
 
 import datetime
+import math
 
 from . import serializers
 import tutoringapp.models
@@ -50,7 +52,7 @@ def return_datetime_duplicate_class(class_list, year, month, day, hour):
     return duplicate_class
 
 # UTCをJSTに変換する
-# 引数には、UTCとしての日付、時刻を受け取る
+# 引数では、UTCとしての日付、時刻を受け取る
 def change_utc_to_jst(year, month, day, hour):
 
     time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone(datetime.timedelta(hours=9)))
@@ -64,7 +66,7 @@ def change_utc_to_jst(year, month, day, hour):
     return (year, month, day, hour)
 
 # JSTをUTCに変換する
-# 引数には、JSTとしての日付、時刻を受け取る
+# 引数では、JSTとしての日付、時刻を受け取る
 def change_jst_to_utc(year, month, day, hour):
 
     time = datetime.datetime(year, month, day, hour, tzinfo=datetime.timezone.utc)
@@ -77,6 +79,93 @@ def change_jst_to_utc(year, month, day, hour):
 
     return (year, month, day, hour)
 
+# ISO8601形式の文字列を個別の数字に分解する
+# 引数では、JSTとしての日付、時刻を表すISO8601形式の文字列を受け取る
+# JSTとしての日付、時刻を戻り値として返す
+def divide_iso8601(datetime_text):
+    datetime_list = datetime_text.split("T")
+    date = datetime_list[0] # 日付を表す文字列
+    time = datetime_list[1] # 時刻を表す文字列
+    time = time.split("+")[0]
+
+    date_list = date.split("-")
+    year = int(date_list[0])
+    month = int(date_list[1])
+    day = int(date_list[2])
+
+    time_list = time.split(":")
+    hour = int(time_list[0])
+    minute = int(time_list[1])
+    second = math.floor(float(time_list[2]))
+
+    return (year, month, day, hour, minute, second)
+
+# UserModelをシリアライズする
+def serialize_user(user):
+
+    serializer = serializers.UserSerializer(instance=user)
+    user_data = serializer.data
+    print(user_data)
+
+    rank = user_data.pop("rank")
+
+    if rank == "bronze":
+        rank = "ブロンズ"
+    elif rank == "silver":
+        rank = "シルバー"
+    elif rank == "gold":
+        rank = "ゴールド"
+    elif rank == "diamond":
+        rank = "ダイヤモンド"
+    
+    user_data["rank"] = rank
+
+    account_start_datetime_text = user_data.pop("account_start_datetime") # account_start_datetime_text変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
+    year, month, day, hour, minute, second = divide_iso8601(account_start_datetime_text)
+
+    user_data["account_start_year"] = year
+    user_data["account_start_month"] = month
+    user_data["account_start_day"] = day
+    user_data["account_start_hour"] = hour
+    user_data["account_start_minute"] = minute
+    user_data["account_start_second"] = second
+
+    class_start_datetime_text = user_data.pop("class_start_datetime") # class_start_datetime_text変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
+    year, month, day, hour, minute, second = divide_iso8601(class_start_datetime_text)
+
+    user_data["class_start_year"] = year
+    user_data["class_start_month"] = month
+    user_data["class_start_day"] = day
+    user_data["class_start_hour"] = hour
+    user_data["class_start_minute"] = minute
+    user_data["class_start_second"] = second
+
+    class_ending_datetime_text = user_data.pop("class_ending_datetime") # class_ending_datetime_text変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
+    year, month, day, hour, minute, second = divide_iso8601(class_ending_datetime_text)
+
+    user_data["class_ending_year"] = year
+    user_data["class_ending_month"] = month
+    user_data["class_ending_day"] = day
+    user_data["class_ending_hour"] = hour
+    user_data["class_ending_minute"] = minute
+    user_data["class_ending_second"] = second
+
+    if user_data["user_type"] == "teacher":
+
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
+        account_start_datetime = datetime.datetime(user_data["account_start_year"], user_data["account_start_month"], user_data["account_start_day"], user_data["account_start_hour"], tzinfo=datetime.timezone(datetime.timedelta(hours=9)))
+        elapsed_datetime = relativedelta(jst_today, account_start_datetime)
+
+        if elapsed_datetime.year is not None:
+            elapsed_year = f"{elapsed_datetime.year}年"
+        else:
+            elapsed_year = "1年未満"
+
+        user_data["career"] = elapsed_year
+    
+    return user_data
+
+# ClassModelのリストをシリアライズする
 def serialize_class_list(class_list):
 
     serializer = serializers.ClassSerializer(instance=class_list, many=True) # この処理において、UTCはJSTへ変換される
@@ -84,19 +173,8 @@ def serialize_class_list(class_list):
 
     for i, specific_class in enumerate(class_list):
 
-        class_datetime = specific_class.pop("datetime") # class_datetime変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
-        class_datetime_list = class_datetime.split("T")
-        date = class_datetime_list[0] # 日付を表す文字列
-        time = class_datetime_list[1] # 時刻を表す文字列
-        time = time.split("+")[0]
-
-        date_list = date.split("-")
-        year = int(date_list[0])
-        month = int(date_list[1])
-        day = int(date_list[2])
-
-        time_list = time.split(":")
-        hour = int(time_list[0])
+        class_datetime_text = specific_class.pop("datetime") # class_datetime_text変数には、ISO8601に則って表記されたJSTにおける日時の文字列が格納されている
+        year, month, day, hour, minute, second = divide_iso8601(class_datetime_text)
 
         class_list[i]["year"] = year
         class_list[i]["month"] = month
@@ -146,10 +224,9 @@ class GetUserView(views.APIView):
     # user_id : ユーザーのUserModelにおけるid
     def get(self, request, user_id, *args, **kwargs):
         user = get_user_model().objects.get(id=user_id)
+        user_data = serialize_user(user)
 
-        serializer = serializers.UserSerializer(instance=user)
-
-        return Response(serializer.data, status.HTTP_200_OK)
+        return Response(user_data, status.HTTP_200_OK)
 
 class CreateDummyStudentView(generics.CreateAPIView):
     pass
@@ -185,8 +262,8 @@ class GetTeachersView(views.APIView):
 
         return Response(teachers_list, status.HTTP_200_OK)
 
-# 特定の生徒が予約した授業を取得する(ただし、現在時刻より前の授業は取得されない)
-class GetDailySpecificReservedClassView(views.APIView):
+# 生徒が予約した、今日行われる残りの授業を取得する
+class GetDailyStudentsReservedClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -200,7 +277,7 @@ class GetDailySpecificReservedClassView(views.APIView):
         reserved_class_list = change_set_to_list(reserved_class_set)
         daily_reserved_class_list = []
 
-        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
         now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
         zero_oclock = 0
@@ -225,24 +302,20 @@ class GetDailySpecificReservedClassView(views.APIView):
         
         return Response(daily_reserved_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
 
-# 講師の一週間分の、特定の生徒が予約した授業を取得する(ただし、現在時刻より前の授業は取得されない)
-class GetWeeklySpecificReservedClassView(views.APIView):
+# 一週間分の、生徒が予約した授業を取得する(ただし、現在時刻より前の授業は取得されない)
+class GetWeeklyStudentsReservedClassView(views.APIView):
+    
+    permission_class = [permissions.IsAuthenticated]
 
-    permission_classes = [permissions.IsAuthenticated]
-
-    # teacher_id : 講師のUserModelにおけるid, student_id : 生徒のUserModelにおけるid
     def get(self, request, *args, **kwargs):
-        teacher_id = request.query_params.get("teacher_id")
-        student_id = request.query_params.get("student_id")
+        user = request.user
+        student = tutoringapp.models.StudentModel.objects.get(user=user.id)
 
-        teacher = tutoringapp.models.TeacherModel.objects.get(user=teacher_id)
-        student = tutoringapp.models.StudentModel.objects.get(user=student_id)
+        reserved_class_set = tutoringapp.models.ClassModel.objects.filter(student=student.id)
+        reserved_class_list = change_set_to_list(reserved_class_set)
+        weekly_reserved_class_list = []
 
-        teachers_class_set = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id).filter(student=student.id) # 講師の授業のうち、特定の生徒が予約した授業のセット
-        teachers_class_list = change_set_to_list(teachers_class_set)
-        weekly_teachers_class_list = []
-
-        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
         now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
         zero_days_after = 0
@@ -255,21 +328,68 @@ class GetWeeklySpecificReservedClassView(views.APIView):
 
             for j in range(fifteen_oclock, twenty_four_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
-                duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
+                duplicate_class = return_datetime_duplicate_class(reserved_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class and added_datetime.timestamp() >= now.timestamp():
-                    weekly_teachers_class_list.append(duplicate_class)
+                    weekly_reserved_class_list.append(duplicate_class)
 
             for j in range(zero_oclock, fifteen_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
-                duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
+                duplicate_class = return_datetime_duplicate_class(reserved_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
                 if duplicate_class and added_datetime.timestamp() >= now.timestamp():
-                    weekly_teachers_class_list.append(duplicate_class)
+                    weekly_reserved_class_list.append(duplicate_class)
 
-        weekly_teachers_class_list = serialize_class_list(weekly_teachers_class_list) # この処理において、UTCはJSTへ変換される
+        weekly_reserved_class_list = serialize_class_list(weekly_reserved_class_list) # この処理において、UTCはJSTへ変換される
         
-        return Response(weekly_teachers_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
+        return Response(weekly_reserved_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
+
+
+# 一週間分の、特定の生徒が予約した特定の講師の授業を取得する(ただし、現在時刻より前の授業は取得されない)
+class GetWeeklySpecificReservedClassView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    # teacher_id : 講師のUserModelにおけるid, student_id : 生徒のUserModelにおけるid
+    def get(self, request, *args, **kwargs):
+        teacher_id = request.query_params.get("teacher_id")
+        student_id = request.query_params.get("student_id")
+
+        teacher = tutoringapp.models.TeacherModel.objects.get(user=teacher_id)
+        student = tutoringapp.models.StudentModel.objects.get(user=student_id)
+
+        reserved_class_set = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id).filter(student=student.id) # 講師の授業のうち、特定の生徒が予約した授業のセット
+        reserved_class_list = change_set_to_list(reserved_class_set)
+        weekly_reserved_class_list = []
+
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
+        today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
+        now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
+        zero_days_after = 0
+        seven_days_after = 7
+        zero_oclock = 0
+        fifteen_oclock = 15
+        twenty_four_oclock = 24
+
+        for i in range(zero_days_after, seven_days_after):
+
+            for j in range(fifteen_oclock, twenty_four_oclock):
+                added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
+                duplicate_class = return_datetime_duplicate_class(reserved_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
+
+                if duplicate_class and added_datetime.timestamp() >= now.timestamp():
+                    weekly_reserved_class_list.append(duplicate_class)
+
+            for j in range(zero_oclock, fifteen_oclock):
+                added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
+                duplicate_class = return_datetime_duplicate_class(reserved_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
+
+                if duplicate_class and added_datetime.timestamp() >= now.timestamp():
+                    weekly_reserved_class_list.append(duplicate_class)
+
+        weekly_reserved_class_list = serialize_class_list(weekly_reserved_class_list) # この処理において、UTCはJSTへ変換される
+        
+        return Response(weekly_reserved_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
 
 # クラスの詳細情報を取得する
 # 講師id, 日付、時刻からクラスを特定する
@@ -316,8 +436,8 @@ class AddReservedClassView(views.APIView):
 # ---------------------------講師関連のAPI----------------------------
 
 
-# 今日行う授業のうち、残りの授業を取得する
-class GetDailyReservedClassView(views.APIView):
+# 講師が今日行う授業のうち、残りの授業を取得する
+class GetDailyTeachersReservedClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -329,7 +449,7 @@ class GetDailyReservedClassView(views.APIView):
         teachers_class_list = change_set_to_list(teachers_class_set)
         daily_teachers_class_list = []
 
-        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
         now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
         zero_oclock = 0
@@ -354,8 +474,8 @@ class GetDailyReservedClassView(views.APIView):
 
         return Response(daily_teachers_class_list, status.HTTP_200_OK)
 
-# 講師の一週間分の、生徒が予約した授業を取得する
-class GetWeeklyReservedClassView(views.APIView):
+# 講師の一週間分の、予約された授業を取得する(ただし、現在時刻より前の授業は取得されない)
+class GetWeeklyTeachersReservedClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -367,8 +487,9 @@ class GetWeeklyReservedClassView(views.APIView):
         teachers_class_list = change_set_to_list(teachers_class_set)
         weekly_teachers_class_list = []
 
-        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
+        now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
         zero_days_after = 0
         seven_days_after = 7
         zero_oclock = 0
@@ -381,14 +502,14 @@ class GetWeeklyReservedClassView(views.APIView):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
-                if duplicate_class:
+                if duplicate_class and added_datetime.timestamp() >= now.timestamp():
                     weekly_teachers_class_list.append(duplicate_class)
 
             for j in range(zero_oclock, fifteen_oclock):
                 added_datetime = today.replace(hour=j) + datetime.timedelta(days=i+1)
                 duplicate_class = return_datetime_duplicate_class(teachers_class_list, added_datetime.year, added_datetime.month, added_datetime.day, added_datetime.hour)
 
-                if duplicate_class:
+                if duplicate_class and added_datetime.timestamp() >= now.timestamp():
                     weekly_teachers_class_list.append(duplicate_class)
         
         weekly_teachers_class_list = serialize_class_list(weekly_teachers_class_list) # この処理において、UTCはJSTへ変換される
@@ -410,7 +531,7 @@ class GetWeeklyTeachersClassView(views.APIView):
         teachers_class_list = change_set_to_list(teachers_class_set)
         weekly_teachers_class_list = []
 
-        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける0時0分
+        jst_today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))) # JSTにおける現在時刻
         today = timezone.now().replace(day=jst_today.day, hour=15, minute=0, second=0, microsecond=0) - datetime.timedelta(days=1) # UTCにおける15時0分(JSTにおける0時0分)
         zero_days_after = 0
         seven_days_after = 7

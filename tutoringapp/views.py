@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect
 
+import tutoringapp
+
 
 # -------------------------講師・生徒共通のページ-------------------------
 
@@ -38,10 +40,11 @@ def login_view(request):
         return render(request, "login.html")
 
 # ユーザーのプロフィールを表示する
-def profile_view(request):
+# profile_user_id : プロフィールを表示するユーザーの、UserModelにおけるid
+def profile_view(request, profile_user_id):
 
     if request.user.is_authenticated:
-        return render(request, "profile.html")
+        return render(request, "profile.html", {"profile_user_id" : profile_user_id})
 
     else:
         return redirect("home_page")

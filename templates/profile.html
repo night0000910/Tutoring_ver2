@@ -1,11 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block header %}
 <script type="text/javascript" src="{% static 'js/profile.js' %}"></script>
 {% endblock header %}
 
 {% block content %}
-<div class="container">
-    
+<input type="hidden" value="{{user.id}}" id="user-id">
+<input type="hidden" value="{{profile_user_id}}" id="profile-user-id">
+
+<div class="container" id="container">
+    <div class="row">
+        <div class="col s12 m7">
+          <div class="card">
+            <div class="card-image">
+              <img id="profile-image">
+              <span class="card-title" id="profile-name"></span>
+            </div>
+            <div class="card-content" id="profile-content">
+            </div>
+          </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
