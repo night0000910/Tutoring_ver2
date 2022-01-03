@@ -23,6 +23,21 @@ def home_page_view(request):
         
         return render(request, "home_page.html")
 
+def signup_view(request):
+
+    if request.user.is_authenticated:
+        user = request.user
+
+        if user.user_type == "student":
+            return redirect("reserve")
+        
+        elif user.user_type == "teacher":
+            return redirect("manage_schedule")
+    
+    else:
+
+        return render(request, "signup.html")
+
 # ログインページ
 def login_view(request):
 
@@ -38,6 +53,14 @@ def login_view(request):
     else:
         
         return render(request, "login.html")
+
+def logout_view(request):
+
+    if request.user.is_authenticated:
+        return render(request, "logout.html")
+    
+    else:
+        return redirect("home_page")
 
 # ユーザーのプロフィールを表示する
 # profile_user_id : プロフィールを表示するユーザーの、UserModelにおけるid

@@ -146,6 +146,7 @@ function createElementsOfReservedClass(){
             ul.appendChild(li);
         }
         
+        console.log(ul);
 
         for (var reservedClass of reservedClassArray){
             var a = document.createElement("a");
@@ -156,6 +157,8 @@ function createElementsOfReservedClass(){
             var div = document.getElementById(reservedClass.year + "-" + reservedClass.month + "-" + reservedClass.day);
             div.appendChild(a);
         }
+
+        $('.collapsible').collapsible();
     }
 }
 

@@ -40,11 +40,12 @@
               <li><a href="/tutoring/manage_schedule/">授業を予約</a></li>
               {% endif %}
             <li><a href="/tutoring/profile/{{user.id}}/">マイページ</a></li>
-            <li><a href="#">ログアウト</a></li>
+            <li><a href="#">アカウント設定</a></li>
+            <li><a href="/tutoring/logout/">ログアウト</a></li>
             {% else %}
             <li><a href="#">ホーム</a></li>
-            <li><a href="#">ログイン</a></li>
-            <li><a href="#">アカウントを作成</a></li>
+            <li><a href="/tutoring/login/">ログイン</a></li>
+            <li><a href="/tutoring/signup/">アカウントを作成</a></li>
             {% endif %}
           </ul>
         </div>

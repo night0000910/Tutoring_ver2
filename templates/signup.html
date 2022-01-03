@@ -10,10 +10,20 @@
     <div class="container">
         <div class="card-panel hoverable" id="contents-container">
             <img class="responsive-img" src="/media/Tutoring.jpg">
-            <h5 id="login-title">ログイン</h5>
+            <h5 id="signup-title">アカウントを作成</h5>
             <div class="row">
 
                 <form class="col s12">
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input placeholder="氏" id="last-name" type="text" class="validate" required>
+                            <label for="first-name">氏名</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input placeholder="名" id="first-name" type="text" class="validate" required>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="input-field col s12">
                             <input placeholder="" id="user-name" type="text" class="validate" required>
@@ -28,7 +38,7 @@
                         </div>
                     </div>
 
-                    <button class="btn waves-effect waves-light" type="button" name="action" id="login-btn">ログイン
+                    <button class="btn waves-effect waves-light" type="button" name="action" id="signup-btn">サインアップ
                         <i class="material-icons right">send</i>
                     </button>
                 </form>

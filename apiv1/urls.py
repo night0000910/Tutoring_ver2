@@ -8,6 +8,7 @@ from . import views
 urlpatterns = [
     path("login/", views.LoginView.as_view()),
     path("logout/", views.LogoutView.as_view()),
+    path("logout/", views.LogoutView.as_view()),
     path("users/<user_id>/", views.GetUserView.as_view()), # ユーザーの詳細情報を取得する
     path("classes/non_reserved_classes/teachers/", views.GetTeachersView.as_view()), # 授業が予約可能な講師を取得する
     path("users/authenticated_student/classes/daily_classes/", views.GetDailyStudentsReservedClassView.as_view()), # 生徒が予約した、今日行われる残りの授業を取得する
