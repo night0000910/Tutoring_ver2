@@ -23,6 +23,7 @@ def home_page_view(request):
         
         return render(request, "home_page.html")
 
+# サインアップページ
 def signup_view(request):
 
     if request.user.is_authenticated:
@@ -37,6 +38,22 @@ def signup_view(request):
     else:
 
         return render(request, "signup.html")
+
+# サインアップに成功したことを知らせるページ
+def succeed_in_signup_view(request):
+
+    if request.user.is_authenticated:
+        user = request.user
+
+        if user.user_type == "student":
+            return redirect("reserve")
+        
+        elif user.user_type == "teacher":
+            return redirect("manage_schedule")
+    
+    else:
+
+        return render(request, "succeed_in_signup.html")
 
 # ログインページ
 def login_view(request):

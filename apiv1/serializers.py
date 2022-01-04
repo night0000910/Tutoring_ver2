@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
+from rest_framework import validators
 
 import tutoringapp.models
 
@@ -26,6 +27,25 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ["id", "username", "first_name", "last_name", "profile_image", "rank", "self_introduction", "spent_time", "user_type", "account_start_datetime", "class_start_datetime", "class_ending_datetime"]
+    
+class CreateUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = get_user_model()
+        fields = "__all__"
+        extra_kwargs = {
+            "username" : {
+                "validators" : [
+                    validators.UniqueValidator(queryset=get_user_model().objects.all())
+                    ],
+            }
+        }
+
+class StudentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = tutoringapp.models.StudentModel
+        fields = "__all__"
 
 class TeacherSerializer(serializers.ModelSerializer):
 

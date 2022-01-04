@@ -222,8 +222,31 @@ def serialize_class_list(class_list):
     
     return class_list
 
+
 # -------------------------講師・生徒共通のAPI-------------------------
 
+
+class CreateUserView(views.APIView):
+
+    def post(self, request, *args, **kwargs):
+        create_user_serializer = serializers.CreateUserSerializer(data=request.data)
+        create_user_serializer.is_valid(raise_exception=True)
+        user = create_user_serializer.save()
+
+        if user.user_type == "student":
+            students_data = {"user" : user.id}
+            student_serializer = serializers.StudentSerializer(data=students_data)
+            student_serializer.is_valid(raise_exception=True)
+            student_serializer.save()
+        elif user.user_type == "teacher":
+            teachers_data = {"user" : user.id}
+            teacher_serializer = serializers.TeacherSerializer(data=teachers_data)
+            teacher_serializer.is_valid(raise_exception=True)
+            teacher_serializer.save()
+        
+        user_data = create_user_serializer.data
+        
+        return Response(user_data, status.HTTP_200_OK)
 
 class LoginView(views.APIView):
 
@@ -255,7 +278,21 @@ class GetUserView(views.APIView):
         return Response(user_data, status.HTTP_200_OK)
 
 class CreateDummyStudentView(generics.CreateAPIView):
-    pass
+    
+    def post(self, request, *args, **kwargs):
+        dummy_students_data = {"username" : "dummy_student", "password" : "password", "first_name" : "student", "last_name" : "dummy", "user_type" : "student"}
+        create_user_serializer = serializers.CreateUserSerializer(data=dummy_students_data)
+        create_user_serializer.is_valid(raise_exception=True)
+        user = create_user_serializer.save()
+
+        students_data = {"user" : user.id}
+        student_serializer = serializers.StudentSerializer(data=students_data)
+        student_serializer.is_valid()
+        student_serializer.save()
+
+        user_data = create_user_serializer.data
+
+        return Response(user_data, status.HTTP_200_OK)
 
 
 # ---------------------------生徒専用のAPI----------------------------
