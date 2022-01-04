@@ -40,6 +40,20 @@ class CreateUserSerializer(serializers.ModelSerializer):
                     ],
             }
         }
+    
+    def create(self, validated_data):
+        username = validated_data["username"]
+        password = validated_data["password"]
+        first_name = validated_data["first_name"]
+        last_name = validated_data["last_name"]
+        user_type = validated_data["user_type"]
+
+        user = get_user_model().objects.create_user(username, "", password)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.user_type = user_type
+        user.save()
+        return user
 
 class StudentSerializer(serializers.ModelSerializer):
 
