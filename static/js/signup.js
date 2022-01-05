@@ -58,13 +58,13 @@ function getCsrfToken(){
 
 function displaySucceedInSignup(){
     var response = JSON.parse(this.response);
-    var user = response;
-    var createdUserId = user.id;
+    var signup = response.detail;
+    console.log(signup)
 
-    if (createdUserId != null){ /* アカウントの作成に成功した場合 */
+    if (signup == "サインアップに成功しました"){
         window.location.href = "/tutoring/succeed_in_signup/"
 
-    } else{ /* アカウントの作成に失敗した場合 */
+    } else{
         displayError();
     }
 }
