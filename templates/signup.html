@@ -12,50 +12,56 @@
             <video class="responsive-video" autoplay muted playsinline loop>
                 <source src="/media/Tutoring.mp4" type="video/mp4">
             </video>
-            <h5 id="signup-title">アカウントを作成</h5>
-            <div class="row">
 
-                <form class="col s12">
-                    <div class="row">
-                        <div class="input-field col s6">
-                            <input placeholder="氏" id="last-name" type="text" class="validate" required>
-                            <label for="first-name">氏名</label>
+            <div class="section">
+                <h5 id="signup-title">アカウントを作成</h5>
+            </div>
+
+            <div class="section">
+                <div class="row">
+
+                    <form class="col s12">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input placeholder="氏" id="last-name" type="text" class="validate" required>
+                                <label for="first-name">氏名</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input placeholder="名" id="first-name" type="text" class="validate" required>
+                            </div>
                         </div>
-                        <div class="input-field col s6">
-                            <input placeholder="名" id="first-name" type="text" class="validate" required>
+
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <select id="user-type" required>
+                                <option value="" disabled selected>タイプを選択</option>
+                                <option value="student">生徒</option>
+                                <option value="teacher">講師</option>
+                                </select>
+                                <label>ユーザーのタイプ</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="input-field col s6">
-                            <select id="user-type" required>
-                              <option value="" disabled selected>タイプを選択</option>
-                              <option value="student">生徒</option>
-                              <option value="teacher">講師</option>
-                            </select>
-                            <label>ユーザーのタイプ</label>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input placeholder="" id="user-name" type="text" class="validate" required>
+                                <label for="user-name">ユーザー名</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input placeholder="" id="user-name" type="text" class="validate" required>
-                            <label for="user-name">ユーザー名</label>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input placeholder="" id="password" type="password" class="validate" required>
+                                <label for="password">パスワード</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input placeholder="" id="password" type="password" class="validate" required>
-                            <label for="password">パスワード</label>
-                        </div>
-                    </div>
+                        <button class="btn waves-effect waves-light" type="button" name="action" id="signup-btn">サインアップ
+                            <i class="material-icons right">send</i>
+                        </button>
+                    </form>
 
-                    <button class="btn waves-effect waves-light" type="button" name="action" id="signup-btn">サインアップ
-                        <i class="material-icons right">send</i>
-                    </button>
-                </form>
-
+                </div>
             </div>
         </div>
     </div>

@@ -119,14 +119,18 @@ function createElementsOfReservedClass(){
 
 
     if (reservedClassArray.length >= 1){
+        var section = document.createElement("div");
+        section.setAttribute("class", "section");
         var h5 = document.createElement("h5");
         h5.innerHTML = "予約した授業";
         var ul = document.createElement("ul");
         ul.setAttribute("class", "collapsible");
+        var container = document.getElementById("container");
+        
+        section.appendChild(h5);
+        section.appendChild(ul);
+        container.appendChild(section);
 
-        container = document.getElementById("container");
-        container.appendChild(h5);
-        container.appendChild(ul);
 
         for (date of dateArray){
             var li = document.createElement("li");

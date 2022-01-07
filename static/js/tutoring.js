@@ -14,9 +14,6 @@ function communicateWithWebRTC(){
     console.log(currentClass);
 
     if (currentClass != null){
-
-        console.log(JSON.parse(this.response));
-
         mapPeers = {};
 
         var usernameElement = document.getElementById("username");
@@ -115,8 +112,8 @@ function communicateWithWebRTC(){
         // messageList : メッセージのリスト
         // messageInput : メッセージの入力フォーム
         var btnSendMsg = document.querySelector("#btn-send-msg");
-        var messageList = document.querySelector("#message-list");
-        var messageInput = document.querySelector("#msg");
+        messageList = document.querySelector("#message-list");
+        messageInput = document.querySelector("#msg");
 
         btnSendMsg.addEventListener("click", sendMsgOnClick);
 
@@ -163,16 +160,18 @@ function webSocketOnMessage(event){
 }
 
 function sendMsgOnClick(){
+    var firstName = document.getElementById("first-name").getAttribute("value");
+    var lastName = document.getElementById("last-name").getAttribute("value");
     var message = messageInput.value;
 
     var li = document.createElement("li");
     li.style.listStyleType = "none";
-    li.appendChild(document.createTextNode(username + ": " + message));
+    li.appendChild(document.createTextNode(lastName + " " + firstName + " : " + message));
     messageList.appendChild(li);
 
     var dataChannels = getDataChannels();
 
-    message = username + ": " + message;
+    message = lastName + " " + firstName + " : " + message;
 
     for(index in dataChannels){
         dataChannels[index].send(message);
@@ -327,6 +326,7 @@ function createVideo(peerUsername){
     remoteVideo.playsInline = true;
 
     var videoWrapper = document.createElement("div");
+    videoWrapper.setAttribute("class", "section");
 
     videoContainer.appendChild(videoWrapper);
     videoWrapper.appendChild(remoteVideo);
