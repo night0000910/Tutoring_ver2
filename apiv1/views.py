@@ -292,18 +292,6 @@ class LogoutView(views.APIView):
 
         return Response({"detail" : "ログアウトに成功しました"})
 
-# ユーザーの詳細情報を取得する
-class GetUserView(views.APIView):
-
-    permission_class = [permissions.IsAuthenticated]
-
-    # user_id : ユーザーのUserModelにおけるid
-    def get(self, request, user_id, *args, **kwargs):
-        user = get_user_model().objects.get(id=user_id)
-        user_data = serialize_user(user)
-
-        return Response(user_data, status.HTTP_200_OK)
-
 class CreateDummyStudentView(generics.CreateAPIView):
     
     def post(self, request, *args, **kwargs):
@@ -320,6 +308,40 @@ class CreateDummyStudentView(generics.CreateAPIView):
         data = {"detail" : "dummy_studentの作成に成功しました"}
 
         return Response(data, status.HTTP_200_OK)
+
+# ユーザーの詳細情報を取得する
+class GetUserView(views.APIView):
+
+    permission_class = [permissions.IsAuthenticated]
+
+    # user_id : ユーザーのUserModelにおけるid
+    def get(self, request, user_id, *args, **kwargs):
+        user = get_user_model().objects.get(id=user_id)
+        user_data = serialize_user(user)
+
+        return Response(user_data, status.HTTP_200_OK)
+
+# ログインユーザーが予約した授業のうち、現在行われている授業を取得する
+class GetCurrentClassView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        user = request.user
+        now = timezone.now().replace(minute=0, second=0, microsecond=0) # UTCにおける現在時刻(ただし、分、秒、マイクロ秒は0)
+
+        if user.user_type == "student":
+            student = tutoringapp.models.StudentModel.objects.get(user=user.id)
+            current_class = tutoringapp.models.ClassModel.objects.filter(student=student.id).filter(datetime=now)
+
+        elif user.user_type == "teacher":
+            teacher = tutoringapp.models.TeacherModel.objects.get(user=user.id)
+            current_class = tutoringapp.models.ClassModel.objects.filter(teacher=teacher.id).filter(datetime=now)
+
+        serializer = serializers.ClassSerializer(instance=current_class, many=True)
+
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 # ---------------------------生徒専用のAPI----------------------------
@@ -429,9 +451,9 @@ class GetWeeklySpecificReservedClassView(views.APIView):
         
         return Response(weekly_reserved_class_list, status.HTTP_200_OK) # 日付、時刻はJSTとして返す
 
-# クラスの詳細情報を取得する
+# 生徒が予約していない、特定のクラスの詳細情報を取得する
 # 講師id, 日付、時刻からクラスを特定する
-class GetClassView(views.APIView):
+class GetTeachersClassView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 

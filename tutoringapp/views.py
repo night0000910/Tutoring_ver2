@@ -89,6 +89,15 @@ def profile_view(request, profile_user_id):
     else:
         return redirect("home_page")
 
+# 個別指導ページ
+def tutoring_view(request):
+
+    if request.user.is_authenticated:
+        return render(request, "tutoring.html")
+    
+    else:
+        return redirect("home_page")
+
 
 # ---------------------------生徒専用のページ----------------------------
 
@@ -125,6 +134,7 @@ def choose_reserved_class_datetime_view(request, teacher_id):
 
         return redirect("home_page")
 
+# 授業を予約するかどうかを確認
 def add_reserved_class_view(request, teacher_id, year, month, day, hour):
 
     if request.user.is_authenticated:

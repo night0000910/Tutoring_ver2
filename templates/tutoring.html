@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+<script type="text/javascript" src="{% static 'js/tutoring.js' %}"></script>
+{% endblock header %}
+
+{% block content %}
+<input type="hidden" value="{{user.id}}" id="user-id">
+<input type="hidden" value="{{user.username}}" id="username">
+
+<div class="container">
+    <div class="card-panel hoverable">
+        <div id="video-container">
+            <video class="responsive-video" id="local-video" autoplay muted playsinline>
+            </video>
+        </div>
+
+        <button id="btn-toggle-video" class="waves-effect waves-light btn"><i class="material-icons right">camera_alt</i>カメラをオフ</button>
+        <button id="btn-toggle-audio" class="waves-effect waves-light btn"><i class="material-icons right">blur_on</i>ミュート</button>
+
+        <div id="chat">
+            <div id="messages">
+                <ul id="message-list"></ul>
+            </div>
+
+            <div><input id="msg" class="form-control"><button id="btn-send-msg" class="waves-effect waves-light btn"><i class="material-icons right">send</i>メッセージを送信</button></div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

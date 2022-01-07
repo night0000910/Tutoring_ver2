@@ -47,8 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
+    "channels",
     "apiv1.apps.Apiv1Config",
     "tutoringapp.apps.TutoringappConfig",
+    "signalingapp.apps.SignalingappConfig",
 ]
 
 MIDDLEWARE = [
@@ -80,6 +82,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'tutoring.wsgi.application'
+
+ASGI_APPLICATION = "tutoring.asgi.application"
 
 
 # Database
@@ -144,4 +148,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES" : [
         "rest_framework.authentication.SessionAuthentication",
     ],
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }

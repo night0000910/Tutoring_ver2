@@ -65,7 +65,7 @@ function createElementsOfReservedClass(){
             if (hour == now.getHours() && now.getMinutes() < 50){
                 var classButton = document.createElement("a");
                 classButton.setAttribute("class", "waves-effect waves-light btn-small");
-                classButton.setAttribute("href", "#");
+                classButton.setAttribute("href", "/tutoring/tutoring/");
                 classButton.innerHTML = '<i class="material-icons right">border_color</i>授業を開始する'
 
                 li.appendChild(classButton);
