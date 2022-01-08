@@ -6,7 +6,69 @@
 {% endblock header %}
 
 {% block content %}
+<input type="hidden" value="{{user.id}}" id="user-id">
+
 <div class="container">
+    <div class="card-panel hoverable">
+        <div >
+            <h4>アカウント設定</h4>
+        </div>
     
+        <div class="section">
+            <h5>画像を変更する</h5>
+            <img class="responsive-img" id="profile-image" width="300" height="300">
+            <form action="#">
+                <div class="file-field input-field">
+                  <div class="btn">
+                    <span>File</span>
+                    <input type="file" id="image-form">
+                  </div>
+                  <div class="row">
+                    <div class="col s6">
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="画像を選択してください" required>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn waves-effect waves-light" type="button" name="action" id="update-image-btn">アップロード
+                    <i class="material-icons right">send</i>
+                </button>
+              </form>
+        </div>
+
+        <div class="section">
+            <h5>名前を変更する</h5>
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input placeholder="氏" id="last-name" type="text" class="validate" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input placeholder="名" id="first-name" type="text" class="validate" required>
+                    </div>
+                </div>
+                <button class="btn waves-effect waves-light" type="button" name="action" id="update-name-btn">保存
+                    <i class="material-icons right">send</i>
+                </button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h5>自己紹介を編集する</h5>
+            <form class="col s12">
+                <div class="row">
+                <div class="input-field col s6">
+                    <textarea id="self-introduction" class="materialize-textarea" placeholder="自己紹介を記入" required></textarea>
+                </div>
+                </div>
+                <button class="btn waves-effect waves-light" type="button" name="action" id="update-self-introduction-btn">保存
+                    <i class="material-icons right">send</i>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock content %}

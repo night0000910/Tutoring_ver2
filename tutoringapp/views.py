@@ -89,6 +89,15 @@ def profile_view(request, profile_user_id):
     else:
         return redirect("home_page")
 
+# アカウントを設定する
+def setup_account_view(request):
+
+    if request.user.is_authenticated:
+        return render(request, "setup_account.html")
+    
+    else:
+        return redirect("home_page")
+
 # 個別指導ページ
 def tutoring_view(request):
 

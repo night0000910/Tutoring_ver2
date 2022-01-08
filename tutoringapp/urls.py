@@ -11,6 +11,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("profile/<int:profile_user_id>/", views.profile_view, name="profile"),
+    path("setup_account/", views.setup_account_view, name="setup_account"),
     path("tutoring/", views.tutoring_view, name="tutoring"),
     path("reserve/", views.reserve_view, name="reserve"),
     path("choose_reserved_class_datetime/<int:teacher_id>/", views.choose_reserved_class_datetime_view, name="choose_reserved_class_datetime"),

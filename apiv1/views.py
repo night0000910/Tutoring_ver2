@@ -321,6 +321,18 @@ class GetUserView(views.APIView):
 
         return Response(user_data, status.HTTP_200_OK)
 
+class UpdateProfileImageView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+
+        user = request.user
+        data = request.data
+        print(data)
+
+        return Response({"detail" : "成功しました"}, status.HTTP_200_OK)
+
 # ログインユーザーが予約した授業のうち、現在行われている授業を取得する
 class GetCurrentClassView(views.APIView):
 
