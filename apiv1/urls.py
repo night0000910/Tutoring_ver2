@@ -12,6 +12,7 @@ urlpatterns = [
     path("logout/", views.LogoutView.as_view()),
     path("logout/", views.LogoutView.as_view()),
     path("users/<user_id>/", views.GetUserView.as_view()), # ユーザーの詳細情報を取得する
+    path("users/authenticated_user/users_information/", views.UpdateUsersInformationView.as_view()), # ユーザーの情報を更新する
     path("users/authenticated_user/profile_image/", views.UpdateProfileImageView.as_view()), # ユーザーのプロフィール画像を更新する
     path("users/authenticated_user/classes/current_class/", views.GetCurrentClassView.as_view()), # ログインユーザーが予約した授業のうち、現在行われている授業を取得する
     path("classes/non_reserved_classes/teachers/", views.GetTeachersView.as_view()), # 授業が予約可能な講師を取得する

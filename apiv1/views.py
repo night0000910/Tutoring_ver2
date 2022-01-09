@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import get_user_model, login, logout
 from django.utils import timezone
+from django.core.files.base import ContentFile
 from rest_framework import status, views
 from rest_framework import generics
 from rest_framework import viewsets
@@ -10,6 +11,9 @@ from dateutil.relativedelta import relativedelta
 
 import datetime
 import math
+import base64
+import random
+import string
 
 from . import serializers
 import tutoringapp.models
@@ -249,6 +253,17 @@ def serialize_class_list(class_list):
     
     return class_list
 
+# ランダムなstrインスタンスを生成する
+def return_random_str():
+   random_str_list = [random.choice(string.ascii_letters + string.digits) for i in range(10)]
+   random_str = ''.join(random_str_list)
+
+   now = timezone.now()
+   now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+   random_str += now_str
+
+   return random_str
+
 
 # -------------------------講師・生徒共通のAPI-------------------------
 
@@ -312,7 +327,7 @@ class CreateDummyStudentView(generics.CreateAPIView):
 # ユーザーの詳細情報を取得する
 class GetUserView(views.APIView):
 
-    permission_class = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     # user_id : ユーザーのUserModelにおけるid
     def get(self, request, user_id, *args, **kwargs):
@@ -321,6 +336,23 @@ class GetUserView(views.APIView):
 
         return Response(user_data, status.HTTP_200_OK)
 
+# ユーザーの情報を更新する
+class UpdateUsersInformationView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+
+        user = request.user
+        data = request.data
+
+        serializer = serializers.UserSerializer(instance=user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({"detail" : "ユーザー情報の更新に成功しました"}, status.HTTP_200_OK)
+
+# ユーザーのプロフィール画像を更新する
 class UpdateProfileImageView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
@@ -329,9 +361,19 @@ class UpdateProfileImageView(views.APIView):
 
         user = request.user
         data = request.data
-        print(data)
+        dataURL = data["file"]
+        format, encoded_file_content = dataURL.split(";base64,")
+        extension = format.split("/")[-1]
+        file_content = base64.b64decode(encoded_file_content)
+        file_name = return_random_str()
+        file_path = file_name + "." + extension
+        file = ContentFile(file_content, name=file_path)
+        profile_image = {"profile_image" : file}
+        serializer = serializers.UserSerializer(instance=user, data=profile_image, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return Response({"detail" : "成功しました"}, status.HTTP_200_OK)
+        return Response({"detail" : "画像のアップロードに成功しました"}, status.HTTP_200_OK)
 
 # ログインユーザーが予約した授業のうち、現在行われている授業を取得する
 class GetCurrentClassView(views.APIView):

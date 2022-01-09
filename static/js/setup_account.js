@@ -47,32 +47,63 @@ function readImageFile(){
         fileReader.readAsDataURL(file);
 
         fileReader.onload = function (){
-            var dataURL = fileReader.result;
-            fileContent = dataURL.replace(/data:.*\/.*;base64,/, '');
+            dataURL = fileReader.result;
         };
     }
 }
 
 function updateImage(){
 
-    if (fileContent != null){
+    if (dataURL != null){
+        var file = {"file" : dataURL};
+        var json = JSON.stringify(file);
+
         var csrfToken = getCsrfToken();
 
         var request = new XMLHttpRequest();
-        request.open("POST", "/api/v1/users/authenticated_user/profile_image/");
+        request.open("PATCH", "/api/v1/users/authenticated_user/profile_image/");
         request.setRequestHeader("X-CSRFToken", csrfToken);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = displayImage;
-        request.send(fileContent);
+        request.send(json);
     }
 }
 
 function updateName(){
-    console.log("名前を更新！");
+
+    var firstName = document.getElementById("first-name").value;
+    var lastName = document.getElementById("last-name").value;
+
+    if (firstName && lastName){
+        var usersInformation = {first_name : firstName, last_name : lastName};
+        var json = JSON.stringify(usersInformation);
+
+        var csrfToken = getCsrfToken();
+
+        var request = new XMLHttpRequest();
+        request.open("PATCH", "/api/v1/users/authenticated_user/users_information/");
+        request.setRequestHeader("X-CSRFToken", csrfToken);
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(json);
+    }
 }
 
 function updateSelfIntroduction(){
-    console.log("自己紹介を更新！");
+
+    var selfIntroduction = document.getElementById("self-introduction").value;
+
+    if (selfIntroduction){
+        var usersInformation = {self_introduction : selfIntroduction}
+        var json = JSON.stringify(usersInformation);
+
+        var csrfToken = getCsrfToken();
+
+        var request = new XMLHttpRequest();
+        request.open("PATCH", "/api/v1/users/authenticated_user/users_information/");
+        request.setRequestHeader("X-CSRFToken", csrfToken);
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(json);
+    }
 }
 
 function getCsrfToken(){
@@ -91,5 +122,12 @@ function getCsrfToken(){
 }
 
 function displayImage(){
+    var response = JSON.parse(this.response);
+    var upload = response.detail;
 
+    if (upload == "画像のアップロードに成功しました"){
+        var profileImage = document.getElementById("profile-image");
+        profileImage.setAttribute("src", dataURL);
+
+    }
 }
