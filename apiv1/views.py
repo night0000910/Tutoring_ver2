@@ -131,7 +131,7 @@ def serialize_user(user):
     elif rank == "gold":
         rank = "ゴールド"
     elif rank == "diamond":
-        rank = "ダイヤモンド"
+        rank = "ダイヤ"
     
     user_data["rank"] = rank
 

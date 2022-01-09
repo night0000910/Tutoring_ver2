@@ -3,6 +3,7 @@ $(document).ready(function() {
 
     displayReservedClass();
     createElementsForReservation();
+    displayUsersInformation();
 })
 
 /* 今日行う授業のうち、残りの授業を表示する */
@@ -46,7 +47,7 @@ function createElementsOfReservedClass(){
             var li = document.createElement("li");
             li.setAttribute("class", "collection-item avatar");
             var a = document.createElement("a");
-            a.setAttribute("href", "#");
+            a.setAttribute("href", "/tutoring/profile/" + studentId + "/");
             var img = document.createElement("img");
             img.setAttribute("src", studentImage);
             img.setAttribute("alt", "");
@@ -146,4 +147,48 @@ function distinguishTeachersClass(){
             time.innerHTML += '<span class="badge">reserved</span>';
         }
     }
+}
+
+function displayUsersInformation(){
+    var userId = document.getElementById("user-id").getAttribute("value");
+
+    var request = new XMLHttpRequest();
+    request.open("GET", "/api/v1/users/" + userId + "/");
+    request.onload = createElementsOfUsersInformation;
+    request.send();
+}
+
+function createElementsOfUsersInformation(){
+    var response = JSON.parse(this.response);
+    var user = response
+
+    var rank = user.rank;
+    var spentTime = user.spent_time + "分";
+    var userType = user.user_type;
+
+
+    var rankDiv = document.getElementById("rank");
+    var spentTimeDiv = document.getElementById("spent-time");
+
+    var rankH3 = document.createElement("h3");
+    rankH3.innerHTML = rank;
+    var color;
+
+    if (rank == "ブロンズ"){
+        color = "#BC9E69";
+    } else if(rank == "シルバー"){
+        color = "#BEC1C3";
+    } else if(rank == "ゴールド"){
+        color = "#EFC986";
+    } else if(rank == "ダイヤ"){
+        color = "#94D1C8"
+    }
+
+    rankH3.setAttribute("style", "color : " + color + ";");
+
+    spentTimeH3 = document.createElement("h3");
+    spentTimeH3.innerHTML = spentTime;
+    
+    rankDiv.appendChild(rankH3);
+    spentTimeDiv.appendChild(spentTimeH3);
 }

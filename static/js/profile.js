@@ -19,13 +19,23 @@ function createElementsOfProfile(){
     var lastName = response.last_name;
     var profileImageURL = response.profile_image;
     var userType = response.user_type;
-    var rank = response.rank;
     var selfIntroduction = response.self_introduction;
     var spentTime = response.spent_time;
     var accountStartYear = response.account_start_year;
     var accountStartMonth = response.account_start_month;
     var accountStartDay = response.account_start_day;
     var accountStartHour = response.account_start_hour;
+    var rank = response.rank;
+
+    if (rank == "ブロンズ"){
+        rank = '<span style="color : #BC9E69;">ブロンズ</span>';
+    } else if(rank == "シルバー"){
+        rank = '<span style="color : #BEC1C3;">シルバー</span>';
+    } else if(rank == "ゴールド"){
+        rank = '<span style="color : #EFC986;">ゴールド</span>';
+    } else if(rank == "ダイヤ"){
+        rank = '<span style="color : #94D1C8;">ダイヤ</span>';
+    }
 
     var profileName = document.getElementById("profile-name");
     var profileImage = document.getElementById("profile-image");

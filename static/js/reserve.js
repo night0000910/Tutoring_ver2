@@ -44,7 +44,7 @@ function createElementsOfReservedClass(){
             var li = document.createElement("li");
             li.setAttribute("class", "collection-item avatar");
             var a = document.createElement("a");
-            a.setAttribute("href", "#");
+            a.setAttribute("href", "/tutoring/profile/" + teacherId + "/");
             var img = document.createElement("img");
             img.setAttribute("src", teacherImage);
             img.setAttribute("alt", "");
