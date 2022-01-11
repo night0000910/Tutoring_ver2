@@ -34,7 +34,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["13.112.163.110"]
 
 
 # Application definition
@@ -91,8 +91,12 @@ ASGI_APPLICATION = "tutoring.asgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE" : "django.db.backends.postgresql_psycopg2",
+        "NAME" : "TutoringDatabase",
+        "USER" : "emperor",
+        "PASSWORD" : "hf83jrofmc8",
+        "HOST" : "localhost",
+        "PORT" : "",
     }
 }
 
