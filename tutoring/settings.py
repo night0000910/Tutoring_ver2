@@ -92,7 +92,7 @@ ASGI_APPLICATION = "tutoring.asgi.application"
 DATABASES = {
     'default': {
         "ENGINE" : "django.db.backends.postgresql_psycopg2",
-        "NAME" : "TutoringDatabase",
+        "NAME" : "tutoring",
         "USER" : "emperor",
         "PASSWORD" : "hf83jrofmc8",
         "HOST" : "localhost",
