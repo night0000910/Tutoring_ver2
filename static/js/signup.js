@@ -77,8 +77,8 @@ function displayError(){
         h6.innerHTML = "サインアップに失敗しました";
         h6.setAttribute("id", "signup-failed");
 
-        var div = document.getElementById("contents-container");
+        var div = document.getElementById("signup-div");
         var signupTitle = document.getElementById("signup-title");
-        div.insertBefore(h6, signupTitle.nextSibling);
+        div.appendChild(h6);
     }
 }

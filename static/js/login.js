@@ -60,8 +60,8 @@ function displayError(){
         h6.innerHTML = "ログインに失敗しました";
         h6.setAttribute("id", "login-failed");
 
-        var div = document.getElementById("contents-container");
+        var div = document.getElementById("login-div");
         var loginTitle = document.getElementById("login-title");
-        div.insertBefore(h6, loginTitle.nextSibling);
+        div.appendChild(h6);
     }
 }
