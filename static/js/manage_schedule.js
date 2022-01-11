@@ -164,7 +164,6 @@ function createElementsOfUsersInformation(){
 
     var rank = user.rank;
     var spentTime = user.spent_time + "分";
-    var userType = user.user_type;
 
 
     var rankDiv = document.getElementById("rank");

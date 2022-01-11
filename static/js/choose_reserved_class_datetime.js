@@ -1,16 +1,68 @@
 $(document).ready(function() {
     $('.collapsible').collapsible();
 
+    displayTeachersInformation();
+    displayTeachersClass();
+})
+
+function displayTeachersInformation(){
+    var teacherId = document.getElementById("teacher-id").getAttribute("value");
+
+    var request = new XMLHttpRequest();
+    request.open("GET", "/api/v1/users/" + teacherId + "/");
+    request.onload = createElementsOfTeachersInformation;
+    request.send();
+}
+
+function createElementsOfTeachersInformation(){
+    var response = JSON.parse(this.response);
+    var teacher = response;
+
+    var image = teacher.profile_image;
+    var firstName = teacher.first_name;
+    var lastName = teacher.last_name;
+    var rank = teacher.rank;
+    var career = teacher.career;
+    var selfIntroduction = teacher.self_introduction;
+
+    var color;
+
+    if (rank == "ブロンズ"){
+        color = "#BC9E69";
+    } else if(rank == "シルバー"){
+        color = "#BEC1C3";
+    } else if(rank == "ゴールド"){
+        color = "#EFC986";
+    } else if(rank == "ダイヤ"){
+        color = "#94D1C8"
+    }
+
+    var imageElement = document.getElementById("teachers-image");
+    var nameElement = document.getElementById("teachers-name")
+    var rankElement = document.getElementById("rank");
+    var careerElement = document.getElementById("career");
+    var selfIntroductionElement = document.getElementById("self-introduction");
+
+    imageElement.setAttribute("src", image);
+    nameElement.innerHTML = lastName + " " + firstName;
+    rankElement.innerHTML = rank;
+    rankElement.setAttribute("style", "color : " + color + ";");
+    careerElement.innerHTML += career;
+    selfIntroductionElement.innerHTML = selfIntroduction;
+
+}
+
+function displayTeachersClass(){
     var userId = Number(document.getElementById("user-id").getAttribute("value"));
     var teacherId = Number(document.getElementById("teacher-id").getAttribute("value"));
 
     var request = new XMLHttpRequest();
     request.open("GET", "/api/v1/classes/weekly_classes/?teacher_id=" + teacherId + "&student_id=1");
-    request.onload = displayTeachersClass;
+    request.onload = createElementsOfTeachersClass;
     request.send();
-})
+}
 
-function displayTeachersClass(){
+function createElementsOfTeachersClass(){
     var response = JSON.parse(this.response);
     datetimeArray = createDatetimeArray(response); /* datetimeArrayはグローバル変数。配列には授業を表す辞書が入っている。displayReservedClassメソッドでも利用される。 */
     var dateArray = createDateArray(datetimeArray); 
