@@ -34,7 +34,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["13.112.163.110"]
+ALLOWED_HOSTS = ["13.112.163.110", "tutoring-online.tk"]
 
 
 # Application definition
