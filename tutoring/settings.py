@@ -155,7 +155,10 @@ REST_FRAMEWORK = {
 }
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+     "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis-server-name", 6379)],
+        },
+    },
 }
