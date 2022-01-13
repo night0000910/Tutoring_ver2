@@ -32,7 +32,7 @@ function communicateWithWebRTC(){
             wsStart = "wss://";
         }
 
-        var endPoint = wsStart + loc.host + "/signaling/" + classId + "/" + userId + "/";
+        var endPoint = wsStart + loc.host + ":8000/signaling/" + classId + "/" + userId + "/";
 
         console.log("遷移先のURL : ", endPoint);
         console.log(loc.pathname);
